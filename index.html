@@ -98,6 +98,7 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
 .arch textarea,.arch select{appearance:none;border:1px solid #ffffff22;background:#0d0b13;color:var(--ink);border-radius:12px;padding:12px;font:inherit;font-size:13px}
 .arch textarea{min-height:90px;resize:vertical}
 #cc.on{background:var(--phos);color:#04140b}
+.arch[hidden]{display:none!important}
 .arch{margin-top:16px;border-top:1px solid #ffffff1a;padding-top:14px;display:flex;flex-direction:column;gap:8px}
 .arch h3{font-family:'Bungee',sans-serif;font-size:13px;letter-spacing:2px}
 .arch input{appearance:none;border:1px solid #ffffff22;background:#0d0b13;color:var(--ink);border-radius:12px;padding:12px;font:inherit;font-size:14px}
@@ -192,14 +193,14 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
       <div id="favList" class="favlist"></div>
       <div class="prow"><button class="pbtn" id="letterBtn">💌 MEKTUP</button></div>
     </section>
-    <section class="arch">
+    <section class="arch" hidden>
       <h3>KENDİ ARŞİVİM (PC)</h3>
       <p class="hint" id="jfState">Bağlı değil. PC'deki Jellyfin sunucusunun adresini ve API anahtarını gir; klasöre eklediğin her bölüm kanala kendiliğinden gelir.</p>
       <input id="jfUrl" placeholder="https://bilgisayar.tailxxxx.ts.net" autocomplete="off" autocapitalize="off" spellcheck="false">
       <input id="jfKey" placeholder="API anahtarı" autocomplete="off" autocapitalize="off" spellcheck="false">
       <div class="prow"><button class="pbtn" id="jfSave">BAĞLAN</button><button class="pbtn" id="jfShare">DİĞER CİHAZA AKTAR</button></div>
     </section>
-    <section class="arch">
+    <section class="arch" hidden>
       <h3>BAĞLANTI EKLE</h3>
       <p class="hint">YouTube ya da dzen.ru bölüm linklerini alt alta yapıştır. dzen için videonun "Paylaş → Yerleştir" linki (dzen.ru/embed/…) gerekir. Bu cihazda saklanır; diğer cihazlara "Diğer cihaza aktar" ile geçer.</p>
       <select id="lnShow"></select>
@@ -404,7 +405,7 @@ $('go').onclick=()=>{
 };
 
 function renderKeys(){
-  $('keys').innerHTML=SHOWS.map(s=>{ const na=!s.list.length;
+  $('keys').innerHTML=SHOWS.filter(s=>s.list.length).map(s=>{ const na=!s.list.length;
     const loc=s.list.filter(isLocal).length; const meta=na?(s.local===undefined&&!s.mine?"YouTube'da yok · DVD'den eklenecek":"Arşivde bölüm yok"):(s.sub?s.sub+' · ':'')+s.list.length+' bölüm'+(loc?' <span class="loc">PC '+loc+'</span>':'');
     return `<button class="key ${na?'na':(on.has(s.k)?'on':'')}" data-k="${s.k}" ${na?'aria-disabled="true"':''}><b>${s.n}</b><small>${meta}</small></button>`; }).join('');
   $('hint').textContent=on.size+' dizi açık. Değişiklik sıradaki bölümden itibaren geçerli olur.'; renderJF(); renderLinks(); renderFavs();
