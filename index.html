@@ -103,6 +103,18 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
 .arch input{appearance:none;border:1px solid #ffffff22;background:#0d0b13;color:var(--ink);border-radius:12px;padding:12px;font:inherit;font-size:14px}
 .key .loc{display:inline-block;margin-left:4px;font-size:10px;color:#04140b;background:var(--phos);border-radius:6px;padding:0 5px;font-weight:700}
 #panel{overflow:auto}
+#lock{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px;background:radial-gradient(900px 600px at 50% 0%,#2a1f45,#0b0912 70%)}
+#lock.gone{opacity:0;pointer-events:none;transition:opacity .6s}
+.lk-tv{background:linear-gradient(160deg,#5a3722,#3b2417);border-radius:26px;padding:14px;box-shadow:0 20px 40px -14px #000c}
+.lk-screen{width:min(300px,78vw);aspect-ratio:4/3;border-radius:18% / 16%;background:#0b1a14;box-shadow:inset 0 0 50px #000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-family:'VT323',monospace;color:var(--phos);text-shadow:0 0 8px #7dffb288}
+.lk-title{font-family:'Bungee Shade',cursive;font-size:clamp(30px,8vw,44px);line-height:.95;text-align:center;color:#eafff2}
+.lk-dots{display:flex;gap:14px}.lk-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--phos)}.lk-dots i.on{background:var(--phos);box-shadow:0 0 10px var(--phos)}
+.lk-dots.shake{animation:shake .4s}@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.lk-msg{font-size:20px;min-height:22px}
+.lk-pad{display:grid;grid-template-columns:repeat(3,72px);gap:12px}
+.lk-pad button{appearance:none;border:0;height:62px;border-radius:18px;background:#2a2535;color:#fff;font-family:'Bungee',sans-serif;font-size:22px;box-shadow:0 5px 0 #0009;cursor:pointer}
+.lk-pad button:active{transform:translateY(4px);box-shadow:0 1px 0 #0009}
+.lk-pad button.del{background:#3a3546;font-size:16px}
 </style>
 </head>
 <body>
@@ -126,6 +138,10 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
   <div id="card"><div class="box"><div class="lbl" id="cardLbl">ŞİMDİ</div><div class="show" id="cardShow"></div><div class="next" id="cardNext"></div></div></div>
   <div class="scan"></div>
 
+  <div id="lock">
+    <div class="lk-tv"><div class="lk-screen"><div class="lk-title">ÇİZGİ<br>KANAL</div><div class="lk-dots" id="lkDots"><i></i><i></i><i></i><i></i></div><div class="lk-msg" id="lkMsg">Şifreyi gir</div></div></div>
+    <div class="lk-pad" id="lkPad"></div>
+  </div>
   <div id="start">
     <h1>ÇİZGİ<br>KANAL</h1>
     <p>Seçtiğin çizgi filmlerden rastgele bölümler, bir kanal gibi arka arkaya. Bölüm bitince kısa bir geçişle sıradaki gelir. Ekrana dokununca kumanda açılır.</p>
@@ -180,6 +196,9 @@ const SHOWS = [
  {k:'boyster', n:'Boyster', ids:''},
  {k:'foster', n:"Foster'ın Hayali Dostlar Mekanı", ids:`wt:o3elotjpj3y:1183 wt:wgnngg2fdnm:1196 wt:sa38fmsf0dw:1196 wt:fw0m9gxsqne:1197 wt:eqz3tolw8oy:1188 wt:j5wvnftuk6y:1199 wt:p80zudvwm0m:1198 wt:bo1whezyvis:1198 wt:oigwgj3e1ha:1195 wt:qfyllzuek1y:1182 wt:gcvi2ozewzq:1197 wt:aimr3t5tb0s:1199 wt:xpuhk7toveu:1198 wt:e6b8pvswkr6:1199 wt:vrktvranyuy:1196 wt:hzrce7uu34i:1196 wt:9d1gnypyp2g:1196 wt:ib7mtare3au:1198 wt:xla5a9ivb8m:1194 wt:i8rbqfcofxs:1195 wt:ofgqd6p6tpq:1334 NWqRzSJQFLE J_18sfGCqbY Xt4zUgrJU84 TVti73j9tOQ NUKpEgjvA0E NUYAx8cNHsk EPFBZW5jDmA t-JFVGCKVrE UbcfDfBTV3M VKP9czOUJ-4 x087ghCV7oY rLcYKOEShDw iTOMe76z-90 1ODikVb_Mhk kjEIJR7S5jo`},
  {k:'inek', n:'İnek ve Tavuk', ids:`wt:8opxptm7322:1307 wt:rbrhav5bmhg:1298 wt:m9klw6hcadk:1294 wt:q8gjprcbvg6:1298 wt:thiggarwwhm:1297 wt:0wpxq7pz7ks:837 wt:grpupcpwvsm:1309`},
+ {k:'kulak', n:'Kulak Jack', ids:`IUabycbtJMc NkA88yv_nP0 f504qW6DgFo zHw2Y81aAB4 e2ssBhk1aeM GHxriMrkMDA 4usuhbqIc6I 5AQZuB2nLE8 rWncLRhlsUQ UuyqBstzUP4 Euj6J-sZfsI hE2dbE604uk Xl0pHd7STgQ Ms_6-yNubNQ zYb3JaPJ2Pc LfX63VIMM7E ls6p2rE7Rlk -4vgXyWARIA 8UqY21zH8FU vuqkyjlDX5U 8PnqCHmj2OQ iE3v8WXk_F0 0Iz_hc1Fpz0 IS_dDJynfHw HMIExNEHLJ0 c7zzYy1B8_8 UxK1Yi1YLfk nCVl3mhUecg z1KvNDdj4Zc lE_0xFIid8w 6Hkf4AOEqcc OqGYgqO6dso Mr_W42eFJfA Df7v4jiOLMM RS2Kt-UqnCE TVnamKycQQw 4VozloHc2Go Ko6uJ5HiQbE -yL7xXt64js`},
+ {k:'dexter', n:"Dexter'ın Laboratuvarı", ids:`4xXkCyXnXoY VlCJ8hhjloY __AtQ00ka3k q7qdcFUlJM4 6FppdNJJoK0 9EHafaKtIfw 59QEkXJQ8ag 7J2HmK7IBE0 l2Np5OWrYZA iWzx5K4dU2M yQrkSQt7SJg 3QLkZ38fTIg lf3fSlkY_Xo uvwqPGrRf28 jVcvhQtfF80 5FDzpGJbvxE 8td8L0JBhl4 619qXeLK_7c KUNcn-Y-hpU`},
+ {k:'afacan', n:'Kod Adı Afacanlar', ids:`4oh_Hn8J3dY X6elDrSp9y0 gQK5Td5WnI0 fvL62Z84fWo oN9Lt0zbH5E Gtz-bFubaZk yC5pwZHZ_-0 9gQqM-NxE7U 8jbn4-MNzkI ieP0yG0YlUY i5y2Tnl-Lbk yLK0ZgIxjBk hEbv30xjtqQ QU1iBcJGXgc 3rxc3ftciQE yuu4gjp2KfI`},
  {k:'winx', n:'Winx Club', ids:`MkU2X3eT-sI 7Kha2ydToGU zsgyywtMrzs 6EjugtvwwO4 uxeqgBGvQi4 y6Ra2qpPbtQ Tx3pgGGai5Q XBKIRRySFfM aun7gr11xbU ZqnxspL62Mw YaYdqV8FN2M nCQm4zvZCTo HXhLFLoSHNM ji3fQRX_EX0 l3hwMhTF78Q xMMsex7ecNA UG41PPE8Kpc 74oOcQXR39I 3GoMWqnPifk XDZbxHrbEwM OmwBEy5mWwg dWEyB_1YLw8 ZodYbLOLeXY UjcEWOF-0sk SrJfmDvfAxc lL0Xbmq-oxY z4xx7udwH6w arCd4TTqrfg lqHdVgn6L-4 858_ZUvSOuo 5aZ9e3K6zjU cYa8XP5bwOY zxtKU3ciibY x2w4p3ip4iE OszbWYM7jt4 JZSAYTzjQBA dVqwhyJYL00 AIet9IL3RW8 wWoSN8iPvpY F79fZnsK3eY 5sfnhZeGyEQ bKDXYbe8-lg HSHgxTpOILA glyCv8i-Kwg hNZRaA3uJNU rPX36n0mNhI 6tMYhI4r1Zc Z_dNMBc0bbg E2UvvyJa82w o9UY0KSoN7o hnLIQEx5qqo iLAmg2jU8Pg V7ADjaYNWKg VGMwJmtxvG0 vU1w6feyjNI W5Km4l9i9hU pYowhBi-9Bo 4LkqFT3kg80 WTUvi1N3tBo YCSTy6hDA_g nijXvEJlk4k p9ozUCpDEtc BbZLpn-thPI YAeznJ5pYc0 Y4TmJnKZ6-k PdxQkdioY9Y 4DxwsRBT90M qYqp9zuQWpE uniA9ICCPbs krV43J_YhAY hPEcNNLckOo oITtVQwi818 VrtGVzuhpN0 7WTKpQNo67k I6hEMmJZPOc 6Y-07YxBIik dMmSQxhFsXQ cg_Ql4m8icw BHcEh-jk87A DZJLTGL8Hgc wnA7PYtuTX8 LSERbDeTsfc NAonlv11TVs z6d27W13HPY epr6WQ8F13c -PhYSfbqpgw fu-P2T-FnOk T2hMSZLYMdc 8lweRQM3-Yk zRoNBD5qBFk 64teX3dViWo PCSNcpOIY-I XbWqTKFABbw G1y_RZvW_KI BnwRDVwP7pg lKCH5oLWn_I l9iQj5C39Bg R8YJlOUuyFk w8KqKiSmTEQ NQmbOckZSbQ Nd0P4H6PduU EcIHMmrd1IY ac1XD52R48A qma9jEcAnV8 YN6AVZS4TNs yVDEhqKHfd4 1r1AheAHtNE xXIXmDlQs9o 4PaB1crL2As Niba9h8z4pQ BOINicERb4A yHHaj__64eU dRNTyZGFH4w 7W6IzPifLUE vtAUHIUSl1c lPPo8gpc0Ng X4dD99we51U j4P9TcuxazI 7dk4DczwXnY 2ugew5tNEo4 nUVRp3CGUo0 y2WgElvhEi8 2ykuY_Nv0zA YCipeyGie8U 8VZeLLusNy8 Qzc3V0n-W-U jHxZZ9cfg6g FxqOFkEEFgM C26Uqi7QSmU HD24ee6p06w J9-RQvYfgnc M4kGwpBVejg vrFN9bzbbog x_FUsuZPdnY Eb7Nu8d7fmk SYlbR7Ng_IQ 9WzdNjS0pUs hZXPiJTla4k fPfbrNnlQBA qDc0S6fBBc0 z4fnAcKl3TY _vV4SsTzeXY tONmmVi2HtE CcNIbj6Wtbs 4U7ap0tovI8 A4rDNBYaLmg MevsV6MJfB8 pIVyHPv48wk RmK8tLZ-qRM pT_Xskp7C1I 7CGxiG7IqOo TdEC6Fs8r_I uQa3geVPa68 z2sWBpgDMp4 adFFh5ZhyYs 3T9jE6FCpsM 67y6I_m7isk pBRUAURAapA qY3WYppVlIM KemXbHf5m5U ZsrqcohpSjk TQ_04dFljMY K3YnqwluPak iT40s3ZyPGw gYwMteCOxg8 2-fzHcYmeuM QMd-sAtxfcM 4sVNZpCE600 ifZBST8yii0 x2KFFinSq7Y Zt_5JuAw4Zg WZgO_vKLeFs oXxaF1PZHaw BP-PmDFnyeU cNEh3E5oUAs OiS9oeC9Mss rrvQ0bpeOo8 Mf4gbRVECZc m7p7vzpU47w wqYpeH84qW8 zQdHCnbv6tI XDB6c1CN3gc uxJdCtrl1_E ufs1DkJwpXQ AyvpA8z6FRM D2KT-VWWEJ0 uGTCBWAxFDg gDQxxy_fSRg vgJwuUG6loE aKe6ERkfxlc SoxPigU2KCs 5WbTiRwu3vo nddv_hvZWCE vzkohRjUC3s usSkfxDex_4 pVn9j_lbvCU p_g0N2LvHuQ v2M3oT71I0c FPjWsw60k8o fkJdQTrepqM udlyXGmqe08 hs7S0MXpCQU zNC_EdGdm98 0xFmK9sQd4I KHQQa62z9-w ErV7MON04r0 YdiYDZej988 U7e-KCIPEZk e1HGCj1r_mQ fHQDzpYmcF4 6rUDZZTJ568 u_4WFQvRJHY 0LDyCpP7AdQ 3EndROj6Nps EZjJTgba9v8 VApzhzsi1zg Pxh_zEdTwlM JaD2JeWTLeA s2e22m7M60M lKoQ9CYbw68 mJSo1md01xk fGky5uYTZMg orCYp-STEbY 655TAjq4QOo jE8bGrQyfNc vh1QNsO7i1g kaD89iy1VwM KKE53HDSnpc 5eTxSOWawck xlcEZKPwaQw iKkAIB5DPII xv0yfr0TFm8 rwXla8IAQsc L56yN9Ubbns gcBKRG11opA l5Lr4G1Uvok VvYvm5MOL90 K05Lh0xLFX8 3pCJFuYINUc SEyoPKa9-ao BtOTtuGLnKY mKOpmtkupHs uhiZkjjpJbk iy7obu42ITk yAdhPcalHvE 26W04v2p7oA k_ctM9_PcJ4 RNP5bls2FHk vbGA0luPjlA 3MwQiDyckH0 SKDm-Sqp9Uw ZAoCeLsNouQ mWMG-IhLMzY pKSe9NbpUy0 3XavEN6UO_I o1AoHIroQeY dNxn_1KJUgo CbCOib7OIf4 812X54fohlw`},
  {k:'penguen', n:'Madagaskar Penguenleri', ids:''},
  {k:'sbob', n:'Sünger Bob', ids:''},
@@ -187,6 +206,20 @@ const SHOWS = [
 ].map(s=>({...s, list:s.ids.split(/\s+/).filter(Boolean)}));
 
 const $=id=>document.getElementById(id);
+/* ---------- giriş şifresi ---------- */
+(function(){
+  const HASH='93fb735ad4c100578bc48dab93efd9d62cb46bbfa7d04172d3874efd0e76830c';
+  const lock=$('lock'); let code='';
+  try{ if(localStorage.getItem('cizgi-kanal-ok')===HASH){ lock.remove(); return; } }catch(e){}
+  const pad=$('lkPad'); ['1','2','3','4','5','6','7','8','9','','0','⌫'].forEach(k=>{ const b=document.createElement('button'); b.textContent=k; if(!k){ b.style.visibility='hidden'; } if(k==='⌫') b.className='del'; b.onclick=()=>press(k); pad.appendChild(b); });
+  const dots=()=>[...$('lkDots').children].forEach((d,i)=>d.classList.toggle('on',i<code.length));
+  async function sha(s){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+  async function press(k){ if(k==='⌫'){ code=code.slice(0,-1); dots(); return; } if(code.length>=4) return; code+=k; dots();
+    if(code.length===4){ const ok=(await sha('cizgi-kanal:'+code))===HASH;
+      if(ok){ try{ localStorage.setItem('cizgi-kanal-ok',HASH); }catch(e){} $('lkMsg').textContent='Hoş geldin ♥'; setTimeout(()=>{ lock.classList.add('gone'); setTimeout(()=>lock.remove(),700); },500); }
+      else { $('lkMsg').textContent='Yanlış şifre'; $('lkDots').classList.add('shake'); setTimeout(()=>{ $('lkDots').classList.remove('shake'); code=''; dots(); $('lkMsg').textContent='Şifreyi gir'; },600); } } }
+  document.addEventListener('keydown',e=>{ if(!document.getElementById('lock')) return; if(/^[0-9]$/.test(e.key)) press(e.key); else if(e.key==='Backspace') press('⌫'); });
+})();
 const tv=$('tv');
 let on=new Set(SHOWS.filter(s=>s.list.length).map(s=>s.k));
 try{const sv=JSON.parse(localStorage.getItem('cizgi-kanal-on')||'null'); if(Array.isArray(sv)&&sv.length) on=new Set(sv.filter(k=>SHOWS.some(s=>s.k===k&&s.list.length)));}catch(e){}
