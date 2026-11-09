@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Çizgi Kanal">
+<meta name="apple-mobile-web-app-title" content="İlayda TV">
 <meta name="theme-color" content="#0b0912">
 <meta name="robots" content="noindex, nofollow">
-<title>Çizgi Kanal</title>
+<title>İlayda TV</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon.png">
@@ -115,13 +115,41 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
 .lk-pad button{appearance:none;border:0;height:62px;border-radius:18px;background:#2a2535;color:#fff;font-family:'Bungee',sans-serif;font-size:22px;box-shadow:0 5px 0 #0009;cursor:pointer}
 .lk-pad button:active{transform:translateY(4px);box-shadow:0 1px 0 #0009}
 .lk-pad button.del{background:#3a3546;font-size:16px}
+#start .sig{font-family:'VT323',monospace;font-size:22px;color:var(--amber);margin-top:-8px}
+.cb#fav.on{background:var(--hot);color:#fff}
+.cb#fav.on svg{fill:currentColor}
+.tog{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink)}
+.favlist{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow:auto}
+.favlist button{appearance:none;border:0;text-align:left;background:#1f1b29;color:var(--ink);border-radius:10px;padding:8px 10px;font:inherit;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.favlist button span:last-child{color:var(--hot)}
+.ov{position:absolute;inset:0;z-index:45;display:none;align-items:center;justify-content:center;padding:24px;background:radial-gradient(900px 600px at 50% 20%,#3a2350cc,#0b0912ee)}
+.ov.on{display:flex}
+.env{width:min(340px,80vw);aspect-ratio:3/2;position:relative;cursor:pointer;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.env-body{position:absolute;inset:0;background:linear-gradient(160deg,#f7e3cf,#e9c9a8);border-radius:14px;box-shadow:0 20px 40px -10px #000a;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:18%;overflow:hidden}
+.env-flap{position:absolute;left:0;right:0;top:0;height:60%;z-index:2;background:linear-gradient(180deg,#eccfb2,#ddb48d);clip-path:polygon(0 0,100% 0,50% 100%);border-radius:14px 14px 0 0;transform-origin:top;transition:transform .7s}
+.env.open .env-flap{transform:rotateX(180deg)}
+.env-heart{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);z-index:3;width:54px;height:54px;border-radius:50%;background:var(--hot);color:#fff;display:grid;place-items:center;font-size:26px;box-shadow:0 4px 10px #0006}
+.env-txt{font-family:'VT323',monospace;font-size:22px;color:#7a4a2a}
+.paper{display:none;width:min(560px,92vw);max-height:84vh;overflow:auto;background:#fffaf2;color:#3b2a1e;border-radius:16px;padding:28px 26px;box-shadow:0 30px 60px -20px #000c;font-family:'Space Grotesk',sans-serif;font-size:17px;line-height:1.6;animation:rise .6s ease}
+.paper p{margin:0 0 12px}.paper p:first-child{font-weight:700}.paper p:last-of-type{font-style:italic}
+@keyframes rise{from{transform:translateY(30px);opacity:0}}
+.go.small{font-size:15px;padding:12px 20px;margin-top:8px}
+#card .show.note{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(20px,3.6vw,34px);line-height:1.3;max-width:min(720px,86vw);color:#fff;text-shadow:0 0 12px #ff4d6d88}
+#card .lbl.note{color:var(--hot)}
+.sp-box{position:relative;z-index:2;text-align:center;background:#0b0912cc;border:2px solid #ff4d6d66;border-radius:20px;padding:28px 30px;max-width:min(520px,90vw)}
+.sp-title{font-family:'Bungee Shade',cursive;font-size:clamp(40px,9vw,72px);color:#ffd1dc;line-height:1}
+.sp-text{font-size:18px;margin:14px 0 6px;line-height:1.5}
+.confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.confetti i{position:absolute;top:-20px;width:10px;height:14px;border-radius:2px;animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
 </style>
 </head>
 <body>
 <div id="tv">
   <div id="player-wrap"><div id="player"></div><video id="vid" playsinline preload="auto"></video><iframe id="ext" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe></div>
   <div id="tap"></div>
-  <div class="bug"><i></i>ÇİZGİ KANAL</div>
+  <div class="bug"><i></i>İLAYDA TV</div>
   <div id="lower"><div class="tag">SIRADA</div><div class="txt" id="lowerTxt"></div></div>
 
   <div id="ui">
@@ -129,6 +157,7 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
     <button class="cb" id="play" title="Oynat / Duraklat" aria-label="Oynat veya duraklat"><svg viewBox="0 0 24 24" id="playIco"><path d="M7 4v16l13-8z"/></svg></button>
     <div class="np"><div class="a">ŞİMDİ</div><div class="b" id="npShow">—</div><div class="c" id="npNext"></div></div>
     <button class="cb zap" id="zap" aria-label="Sonraki bölüm">ZAP <svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8V4ZM19 5v14"/></svg></button>
+    <button class="cb" id="fav" title="Favorilere ekle" aria-label="Favorilere ekle"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
     <button class="cb" id="list" title="Diziler" aria-label="Dizileri seç"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
     <button class="cb" id="cc" title="Altyazı" aria-label="Altyazıyı aç veya kapat"><span style="font-family:Bungee;font-size:14px">CC</span></button>
     <button class="cb" id="fs" title="Tam ekran" aria-label="Tam ekran"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
@@ -139,14 +168,16 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
   <div class="scan"></div>
 
   <div id="lock">
-    <div class="lk-tv"><div class="lk-screen"><div class="lk-title">ÇİZGİ<br>KANAL</div><div class="lk-dots" id="lkDots"><i></i><i></i><i></i><i></i></div><div class="lk-msg" id="lkMsg">Şifreyi gir</div></div></div>
+    <div class="lk-tv"><div class="lk-screen"><div class="lk-title">İLAYDA<br>TV</div><div class="lk-dots" id="lkDots"><i></i><i></i><i></i><i></i></div><div class="lk-msg" id="lkMsg">Şifreyi gir</div></div></div>
     <div class="lk-pad" id="lkPad"></div>
   </div>
   <div id="start">
-    <h1>ÇİZGİ<br>KANAL</h1>
-    <p>Seçtiğin çizgi filmlerden rastgele bölümler, bir kanal gibi arka arkaya. Bölüm bitince kısa bir geçişle sıradaki gelir. Ekrana dokununca kumanda açılır.</p>
+    <h1>İLAYDA<br>TV</h1>
+    <p>Çocukluğun bütün çizgi filmleri tek kanalda, rastgele ve arka arkaya. Bölüm bitince sıradaki kendiliğinden gelir; ekrana dokununca kumanda açılır.</p>
+    <p class="sig">Metehan'dan, İlayda'ya ♥</p>
     <button class="go" id="go">▶ YAYINI BAŞLAT</button>
     <button class="link" id="pick">Dizileri seç</button>
+    <button class="link" id="openLetter" style="display:none">💌 Mektubu tekrar aç</button>
   </div>
 
   <aside id="panel" aria-label="Diziler">
@@ -154,6 +185,13 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
     <div class="keys" id="keys"></div>
     <div class="prow"><button class="pbtn" id="all">HEPSİ</button><button class="pbtn" id="none">HİÇBİRİ</button></div>
     <p class="hint" id="hint"></p>
+    <section class="arch">
+      <h3>♥ FAVORİLERİMİZ</h3>
+      <p class="hint" id="favState">Beğendiğin bölümde kumandadaki ♥ tuşuna bas, buraya eklensin.</p>
+      <label class="tog"><input type="checkbox" id="favOnly"> Sadece favorilerden oynat</label>
+      <div id="favList" class="favlist"></div>
+      <div class="prow"><button class="pbtn" id="letterBtn">💌 MEKTUP</button></div>
+    </section>
     <section class="arch">
       <h3>KENDİ ARŞİVİM (PC)</h3>
       <p class="hint" id="jfState">Bağlı değil. PC'deki Jellyfin sunucusunun adresini ve API anahtarını gir; klasöre eklediğin her bölüm kanala kendiliğinden gelir.</p>
@@ -172,6 +210,14 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
     </section>
   </aside>
   <div class="toast" id="toast"></div>
+  <div id="letter" class="ov">
+    <div class="env" id="env"><div class="env-flap"></div><div class="env-body"><div class="env-heart">♥</div><div class="env-txt">Sana bir not var</div></div></div>
+    <div class="paper" id="paper"><div id="paperTxt"></div><button class="go small" id="letterClose">Kanala geç ▶</button></div>
+  </div>
+  <div id="special" class="ov">
+    <div class="confetti" id="confetti"></div>
+    <div class="sp-box"><div class="sp-title" id="spTitle"></div><div class="sp-text" id="spText"></div><button class="go small" id="spClose">♥</button></div>
+  </div>
 </div>
 
 <script>
@@ -210,13 +256,13 @@ const $=id=>document.getElementById(id);
 (function(){
   const HASH='93fb735ad4c100578bc48dab93efd9d62cb46bbfa7d04172d3874efd0e76830c';
   const lock=$('lock'); let code='';
-  try{ if(localStorage.getItem('cizgi-kanal-ok')===HASH){ lock.remove(); return; } }catch(e){}
+  try{ if(localStorage.getItem('cizgi-kanal-ok')===HASH){ lock.remove(); window.__pin=localStorage.getItem('cizgi-kanal-pin')||''; setTimeout(()=>afterUnlock(false),0); return; } }catch(e){}
   const pad=$('lkPad'); ['1','2','3','4','5','6','7','8','9','','0','⌫'].forEach(k=>{ const b=document.createElement('button'); b.textContent=k; if(!k){ b.style.visibility='hidden'; } if(k==='⌫') b.className='del'; b.onclick=()=>press(k); pad.appendChild(b); });
   const dots=()=>[...$('lkDots').children].forEach((d,i)=>d.classList.toggle('on',i<code.length));
   async function sha(s){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
   async function press(k){ if(k==='⌫'){ code=code.slice(0,-1); dots(); return; } if(code.length>=4) return; code+=k; dots();
     if(code.length===4){ const ok=(await sha('cizgi-kanal:'+code))===HASH;
-      if(ok){ try{ localStorage.setItem('cizgi-kanal-ok',HASH); }catch(e){} $('lkMsg').textContent='Hoş geldin ♥'; setTimeout(()=>{ lock.classList.add('gone'); setTimeout(()=>lock.remove(),700); },500); }
+      if(ok){ window.__pin=code; try{ localStorage.setItem('cizgi-kanal-ok',HASH); localStorage.setItem('cizgi-kanal-pin',code); }catch(e){} setTimeout(()=>afterUnlock(true),700); $('lkMsg').textContent='Hoş geldin ♥'; setTimeout(()=>{ lock.classList.add('gone'); setTimeout(()=>lock.remove(),700); },500); }
       else { $('lkMsg').textContent='Yanlış şifre'; $('lkDots').classList.add('shake'); setTimeout(()=>{ $('lkDots').classList.remove('shake'); code=''; dots(); $('lkMsg').textContent='Şifreyi gir'; },600); } } }
   document.addEventListener('keydown',e=>{ if(!document.getElementById('lock')) return; if(/^[0-9]$/.test(e.key)) press(e.key); else if(e.key==='Backspace') press('⌫'); });
 })();
@@ -238,7 +284,9 @@ function pickShow(){
   const w=s=>Math.min(s.list.length,14);
   let r=Math.random()*pool.reduce((a,s)=>a+w(s),0); for(const s of pool){ r-=w(s); if(r<=0) return s; } return pool[0];
 }
-function fill(){ while(queue.length<3){ const s=pickShow(); if(!s) break; queue.push({k:s.k,n:s.n,id:draw(s.k)}); } }
+function fill(){ while(queue.length<3){
+    if(favOnly && FAVS.length){ const recent=history.slice(-3).map(x=>x.id).concat(queue.map(x=>x.id)); let pool=FAVS.filter(f=>!recent.includes(f.id)); if(!pool.length) pool=FAVS; const f=pool[Math.random()*pool.length|0]; queue.push({k:f.k,n:f.n,id:f.id}); continue; }
+    const s=pickShow(); if(!s) break; queue.push({k:s.k,n:s.n,id:draw(s.k)}); } }
 function resetQueue(){ queue=[]; fill(); }
 
 /* ---------- YouTube oynatıcı ---------- */
@@ -287,7 +335,7 @@ addEventListener('message',e=>{ if(e.origin!=='https://dzen.ru') return; let m=e
 let ccOn=false; try{ ccOn=localStorage.getItem('cizgi-kanal-cc')==='1'; }catch(e){}
 function applyCC(){ if(!ready) return; try{ if(ccOn){ player.loadModule('captions'); player.setOption('captions','track',{languageCode:'tr'}); } else { try{ player.setOption('captions','track',{}); }catch(e){} player.unloadModule('captions'); player.unloadModule('cc'); } }catch(e){} $('cc').classList.toggle('on',ccOn); }
 function updateNP(){
-  const c=cur(); if(!c) return; fill();
+  const c=cur(); if(!c) return; fill(); try{ updateFavBtn(); }catch(e){}
   $('npShow').textContent=c.n; $('npNext').textContent=queue[0]?('Sırada: '+queue[0].n):'';
   $('lowerTxt').textContent=queue[0]?queue[0].n:'';
 }
@@ -304,12 +352,15 @@ function transition(withCard,label,immediate){
   const c=cur(); fill();
   if(!withCard){ playCurrent(); return; }
   if(immediate){ playCurrent(); }
-  staticOn(); $('cardLbl').textContent=label||'ŞİMDİ'; $('cardShow').textContent=c.n; $('cardNext').textContent=queue[0]?('sonra: '+queue[0].n):'';
+  staticOn(); const note=label?null:pickNote();
+  $('cardLbl').classList.toggle('note',!!note); $('cardShow').classList.toggle('note',!!note);
+  if(note){ $('cardLbl').textContent="METEHAN'DAN NOT"; $('cardShow').textContent=note; $('cardNext').textContent='şimdi: '+c.n; }
+  else { $('cardLbl').textContent=label||'ŞİMDİ'; $('cardShow').textContent=c.n; $('cardNext').textContent=queue[0]?('sonra: '+queue[0].n):''; }
   clearTimeout(tTimer);
   if(!immediate){ try{ if(ready) player.pauseVideo(); }catch(e){} try{ $('vid').pause(); }catch(e){} try{ const ex=$('ext'); if(ex.classList.contains('on')){ ex.src='about:blank'; } }catch(e){} }
   setTimeout(()=>{ $('card').classList.add('on'); },350);
   if(!immediate) tTimer=setTimeout(()=>{ playCurrent(); },700);
-  setTimeout(()=>{ $('card').classList.remove('on'); staticOff(); },2300);
+  setTimeout(()=>{ $('card').classList.remove('on'); staticOff(); }, note?4800:2300);
 }
 function onState(e){
   if(e.data===YT.PlayerState.ENDED){ next(true); }
@@ -355,7 +406,7 @@ function renderKeys(){
   $('keys').innerHTML=SHOWS.map(s=>{ const na=!s.list.length;
     const loc=s.list.filter(isLocal).length; const meta=na?(s.local===undefined&&!s.mine?"YouTube'da yok · DVD'den eklenecek":"Arşivde bölüm yok"):(s.sub?s.sub+' · ':'')+s.list.length+' bölüm'+(loc?' <span class="loc">PC '+loc+'</span>':'');
     return `<button class="key ${na?'na':(on.has(s.k)?'on':'')}" data-k="${s.k}" ${na?'aria-disabled="true"':''}><b>${s.n}</b><small>${meta}</small></button>`; }).join('');
-  $('hint').textContent=on.size+' dizi açık. Değişiklik sıradaki bölümden itibaren geçerli olur.'; renderJF(); renderLinks();
+  $('hint').textContent=on.size+' dizi açık. Değişiklik sıradaki bölümden itibaren geçerli olur.'; renderJF(); renderLinks(); renderFavs();
 }
 $('keys').addEventListener('click',e=>{ const b=e.target.closest('.key'); if(!b||b.classList.contains('na')) return; const k=b.dataset.k; on.has(k)?on.delete(k):on.add(k); save(); renderKeys(); resetQueue(); if(started) updateNP(); });
 $('all').onclick=()=>{ on=new Set(SHOWS.filter(s=>s.list.length).map(s=>s.k)); save(); renderKeys(); resetQueue(); if(started) updateNP(); };
@@ -446,6 +497,45 @@ vid.addEventListener('pause',()=>setPlayIco(false));
 vid.addEventListener('error',()=>{ if(vid.getAttribute('src')) onErr(); });
 
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+
+/* ---------- İlayda'ya özel: mektup, notlar, favoriler, özel gün ---------- */
+const OZEL_ENC={"s": "fAPZDg3sBp42bko0bV7Svg==", "i": "ju8oaI6XK+lAOJUa", "c": "AeViy1QmwFyPcxFBMRa+4Km47qGRldr1zkZLUGMiUmfh9eSCQyeSS/x1K24OKmJIPT6ilhn3g456urxG4tNtfbwpng1IJkVHCNsU3wHRIO4LvZl0Fahs4ti+cI6Vmoxf8cQzDi7yUUw+oUeA9C99pFoAc78U71ElhLC+LYlAvjF7gy0vp3zsf40aWTNzZIiV0EALp4I3F9x75ERAjUntESVpgpvSkQH0BM5E8UW3NV5w3feheti1rTOJR+34S/OWOIXffSYK9866ab/XgN31W/TDIXvLxODNijm3s1AYLfey5bilTpUxRTWERcfquMLiulTf4VoQYWGOgqXNd2qYBchyj5/f/JYlncu8SFdn0RqV29Cu+nim9ZD5gTcPnxLbL4tgxd4Smxn10z2LkGpFryLLsubQUkCP+OZF0/zQ+pc2T2/3YV21ZTaKFRWZfIgqZqWM6OXJShz5tmybUyUSqtfSsa8ieD+FVzhEgL8/ad1InZf4ZGyBzljmF3bNwr7ZIWBRaNte032RjEIOqndR2WDWEYGTlKqdrtBuxd8uyVK1CS0C73diEJQYRxWHgsW2q1NAyqI20qLgFXmegzZZCpis4N2UIfBBzxRdYRowWvhlYrZut58Z+JOiddZXVOwriFv+UIX6VqBwthc34Y9ENsO5YBPmkZjnOKFBQrQaNUzfFExJiBXpOydMlHm/rcm5FroY0IVXiJ2/0h+W6qyExOeEytJ72TMXaHX53B0Ru+kbAw/gwHSh1tCChWaSAg4hC46GXQ5Y7EsrBij18vsfn2rqWe7WVICbtiTNG1LvSEi3g/EfeA2pRcpVR/dEJji//h1MNYPQXmG6yzn8CCY4M2WD9rvLLmxlsZFfOqJYOeeS6Tb8UQHsTtvhUWWluN0ZY17gTO2q5egdj2jcSiNBQKcslddK+uCtFbQQ+VFVdhj30bVxqECj+weebp2IlkAhH9G1Wd8vH+eTMnnDUYoe42bV2b/jZOSN2NoYyaLlRVvL687hZsbBKVRiyJsKW5iby2QZ+zK73QP+jIflyhQnWZ6ca55QR30/fZ9N4rbArFrr+w9B06/KAO20A6UoeS8A8PkoxpImGFDD5QNIjvz06Sqwa7W4wOYP7uMo73dbSMXgmQ2TsXvenzQKrjO6C3sp5Nz5gURHohxu5mMALtWr91co+VGEHRTH8eb77/BysMNNtMmxYFtiT00j6/+lrzPHC4Meaz+fmfhk+IWpv+oDb2D9BEOA45baGJzPQoxEWnwuU7Xv62XdPuac2qBar1Yt7CdXwxAuLl0VsZOjlJ8/Xr0u+zxXsa4SXsb2UJxGCh6GjzvdmjpmDSO3t7dHb/X+vtRYUmB4BAAovu6S5yNt0/rotpjYVGKHLGgiyREr/AaGgKBuhaul2yB1Blf5Poar5M+MCXKPA32T3NOeLhchzHzLGzF/PrCmDVQ/jkxtOeQ0reBzl0m9aUIXA5Wd7PtGfYr25SpsedIlrrDOIyfJyY+O6En15lKErHV1vwVlFN4H2l9n+uCbC4bXhs/GrE4YWW6oZemC1uht8Tn0nT1iocdM2jAx7xWXkkgAMQoaGOSJhlHDVDap7fanmJtn4lLGS8cpJhWe3DcUAVE8+3Ducs6gPrZ6Felq+oDMCfQxbw/ssPwgLu+MKOJeO9jbwqBK5mUkbpGl3ol3f2wKSfSA+Y1gPS1r+acDT8jFnQu1zWzNikV/PLbnSEGk3vWBVqbx7w3XECm6PqAUMLBNjlOPtLOBphugcxCg32thW1yGRYrGI+sv3j0rGdHnWQvYSduQ4tAjpnh44/bkF+rgn91zsOwLsNPK0RoDlieNixIFpSmveaLF7TrKmwlQv2VulDXiwyToiRYKgHhDjTPqr3BVWptp6xZumO3QWfGFKxXAA/GHuXJuvE8YLaAf+nVwEHNXjLTOCSTsAS50FseRJAAv34jOEFFYiG4iNFpNXCpgBlnNw6sEuEjE/oRBr74Nf4bE3mjZfyoXB9x7/9T/pGJEzLU0K55/B2/jGTpxvqIxx0rpzQE647HVQvEZ4f/o202d0ExvSO9HoomcIF2/vNgfA6N4ZUxkn6Ww2i2Nt2mEsscQFI5dLqM9+sDIhCh5KbegvORR4sxcJSHUC55IDCYpHvEXVkiBAx7EZH0ZrB5uhL01z2JJ2uS05jkwF5MG9FRdyf7AzUTqFBsrlEC1dEgXf58af9jcc3Rv+L/gmH2R75qwXc1WntLtCAyMPZV0QWZPFPqC4gvgJ3wyv0df8csBuxG4ENUz4wRfSE1Trne97DFnTikYSFG4Q30Vd/yof/6KDcl8HZEW/gC8Kj7cXdqVpgcFntxS4gycDUAFdUm6qNTvRHX9ftnA7s0o7BOmv4BPy2OQ8iiG/YHgfqVVaUmbV2u/KP+nm+E3x0AhBpqwrjw/eAAh3fnDgBSJxMMflkm1S4Qt6JIhHOHgtFfK8d56WKWRxce5L8FtERA6RAyxOxMNVxg1IX0BeW0G722MbiBM5L+VcmAHnAOH3aFDf0Tx+w+ocB6QehotR2e4hpb3eg/5rdrAEHiLbZndCFM4RKjvJgUgHGtrzPTUdDqYm5S/uuy25wyGjLgH2H/nEbWp0Cjh1VzptrJG5bDWLX9ftpKwC9G+vuVq2u4onvx0STdHhuRX2HvYyNiG4M7YdtuAySAJU1TFJxykQJklyIYKBjVeVyc0drWV8Vt/jclyZK88aFADhqgApeITxPXsQrgUw68TGCC1dVftnhHtXNYVvofPX1aNdviheC8rq7Z5EjtBKcRvPsTQt619cZGRPTQVNcfcAVQckJql8QLGvpKgHijIhSRuVOe3bc5biYiyAaJnd/wnx31P7D+RKX1gstqpGSV5ObJu5uXqw2eEZuoNVv17FnWsMIAg9mrWrkejJfXBlooDlOGXBYGY8XO0haD5AVuRapn9zOY5QH+V6fzXHOiBxoC6XGnmFNsfMRieCztM8cClEhXF35Q9jYtW7BM5l1CeU0WSHZdn62C7APOlI+GCnkEoyjFa+4WJRdkvxfM2NX/BWI3k5ENMHU/rGhYSlnjuGTh8MpNVLPe/akjBjDupoGEzRADsgGYWDHjCwY1U24uLwmn/zMWf3PlFnVdF/P8mKA4g07D2TY/RhEEWJMSnio76KB+WNwIh6wZv+PG1VwJhpeD9dUO2UrDAIoTTtF0UAuEngFgpXJI2wS0yFvVRVwU1Prt33GK8cB20sTreBd4/7gzXFQmqJCw3enwUG2QCUm6B1Yn9jK3T3+DaEjQrJP8OEDlXc5XOV7sq07ZmA1Qhle9ii+PwnP4kU3Vr2wFJ8x1gnsppGYJu4E7ZyFzzDPkk9H9yTHhG9cUcV7eCw3UkT1gE7K/OmGI14qRN48xOw3PGq0h/lpkeC04hL+3F9faS3Ved8pe1EdrsjjYz+X8xkxmLQPqc+HySvqNXLrhZO+l0dWPHXE7uF6nyXjeHMbvGCgMTfYyjoNbR3iniyfxYc7hTLcZBjW0QixvWrz38+P3BGZsLfzEcS9TgjSCLNuNV"};
+let OZEL=null, noteCount=0, nextNoteAt=4+Math.floor(Math.random()*3);
+async function decryptOzel(pin){ try{ const b=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pin),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b(OZEL_ENC.s),iterations:200000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b(OZEL_ENC.i)},key,b(OZEL_ENC.c));
+  return JSON.parse(new TextDecoder().decode(pt)); }catch(e){ return null; } }
+function pickNote(){ if(!OZEL||!OZEL.notlar||!started) return null; noteCount++; if(noteCount<nextNoteAt) return null; noteCount=0; nextNoteAt=5+Math.floor(Math.random()*4);
+  let used=[]; try{ used=JSON.parse(localStorage.getItem('cizgi-kanal-notlar')||'[]'); }catch(e){}
+  let pool=OZEL.notlar.map((n,i)=>i).filter(i=>!used.includes(i)); if(!pool.length){ used=[]; pool=OZEL.notlar.map((n,i)=>i); }
+  const i=pool[Math.random()*pool.length|0]; used.push(i); try{ localStorage.setItem('cizgi-kanal-notlar',JSON.stringify(used)); }catch(e){} return OZEL.notlar[i]; }
+function showLetter(){ if(!OZEL) return; $('paperTxt').innerHTML=OZEL.mektup.map(p=>'<p>'+p.replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</p>').join('');
+  $('env').classList.remove('open'); $('env').style.display=''; $('paper').style.display='none'; $('letter').classList.add('on'); }
+$('env').onclick=()=>{ $('env').classList.add('open'); setTimeout(()=>{ $('env').style.display='none'; $('paper').style.display='block'; },700); };
+$('letterClose').onclick=()=>{ $('letter').classList.remove('on'); try{ localStorage.setItem('cizgi-kanal-mektup','1'); }catch(e){} maybeSpecial(); };
+$('letterBtn').onclick=()=>{ closePanel(); showLetter(); };
+$('openLetter').onclick=()=>showLetter();
+function maybeSpecial(){ const d=new Date(); if(!(d.getMonth()===4&&d.getDate()===22)||!OZEL) return; const key='cizgi-kanal-ozelgun-'+d.getFullYear(); try{ if(sessionStorage.getItem(key)) return; sessionStorage.setItem(key,'1'); }catch(e){}
+  $('spTitle').textContent=OZEL.ozelGun.baslik; $('spText').textContent=OZEL.ozelGun.metin;
+  const cf=$('confetti'); cf.innerHTML=''; const cols=['#ff4d6d','#ffcf5a','#7dffb2','#8fb8ff','#ffd1dc']; for(let i=0;i<60;i++){ const e=document.createElement('i'); e.style.left=Math.random()*100+'%'; e.style.background=cols[i%cols.length]; e.style.animationDuration=(3+Math.random()*4)+'s'; e.style.animationDelay=(-Math.random()*6)+'s'; cf.appendChild(e); }
+  $('special').classList.add('on'); }
+$('spClose').onclick=()=>$('special').classList.remove('on');
+async function afterUnlock(first){ OZEL=await decryptOzel(window.__pin||''); if(!OZEL) return; $('openLetter').style.display='';
+  let seen=false; try{ seen=localStorage.getItem('cizgi-kanal-mektup')==='1'; }catch(e){}
+  if(!seen) showLetter(); else maybeSpecial(); }
+
+let FAVS=[]; try{ FAVS=JSON.parse(localStorage.getItem('cizgi-kanal-fav')||'[]'); }catch(e){}
+let favOnly=false; try{ favOnly=localStorage.getItem('cizgi-kanal-favonly')==='1'; }catch(e){}
+const saveFav=()=>{ try{ localStorage.setItem('cizgi-kanal-fav',JSON.stringify(FAVS)); }catch(e){} };
+function curTitle(c){ if(typeof c.id==='string'&&!isExt(c.id)){ try{ const t=player.getVideoData().title; if(t) return t.split('|').map(s=>s.trim()).filter(s=>s&&!/cartoon network|tam bölüm|@/i.test(s)).slice(0,2).join(' · ')||t; }catch(e){} } return c.n+' bölümü'; }
+function updateFavBtn(){ const c=cur(); $('fav').classList.toggle('on', !!(c&&FAVS.some(f=>f.id===c.id))); }
+$('fav').onclick=()=>{ const c=cur(); if(!c) return; const i=FAVS.findIndex(f=>f.id===c.id); if(i>=0){ FAVS.splice(i,1); toast('Favorilerden çıkarıldı'); } else { FAVS.push({k:c.k,n:c.n,id:c.id,t:curTitle(c)}); toast('♥ Favorilere eklendi'); } saveFav(); updateFavBtn(); renderFavs(); };
+function renderFavs(){ const l=$('favList'); if(!l) return; $('favOnly').checked=favOnly;
+  $('favState').textContent=FAVS.length?`${FAVS.length} favori bölüm.`:'Beğendiğin bölümde kumandadaki ♥ tuşuna bas, buraya eklensin.';
+  l.innerHTML=FAVS.map((f,i)=>`<button data-i="${i}"><span>${(f.t||f.n).replace(/[<>&]/g,'')}</span><span>♥</span></button>`).join(''); }
+$('favList').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const f=FAVS[+b.dataset.i]; if(!f) return; closePanel(); if(!started){ $('start').style.display='none'; started=true; } history.push({k:f.k,n:f.n,id:f.id}); pos=history.length-1; transition(true,'FAVORİ',true); });
+$('favOnly').onchange=e=>{ favOnly=e.target.checked; try{ localStorage.setItem('cizgi-kanal-favonly',favOnly?'1':'0'); }catch(_){} if(favOnly&&!FAVS.length){ toast('Önce birkaç bölümü ♥ ile ekle'); } resetQueue(); if(started) updateNP(); };
 
 function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'),2200); }
 </script>
