@@ -209,7 +209,7 @@ function playCurrent(){ const c=cur(); if(!c) return; updateNP();
   if(!ready) return; player.loadVideoById(c.id); }
 /* altyazı: varsayılan kapalı, CC tuşuyla aç/kapat (tercih hatırlanır) */
 let ccOn=false; try{ ccOn=localStorage.getItem('cizgi-kanal-cc')==='1'; }catch(e){}
-function applyCC(){ if(!ready) return; try{ if(ccOn){ player.loadModule('captions'); player.setOption('captions','track',{languageCode:'tr'}); } else { player.unloadModule('captions'); player.unloadModule('cc'); } }catch(e){} $('cc').classList.toggle('on',ccOn); }
+function applyCC(){ if(!ready) return; try{ if(ccOn){ player.loadModule('captions'); player.setOption('captions','track',{languageCode:'tr'}); } else { try{ player.setOption('captions','track',{}); }catch(e){} player.unloadModule('captions'); player.unloadModule('cc'); } }catch(e){} $('cc').classList.toggle('on',ccOn); }
 function updateNP(){
   const c=cur(); if(!c) return; fill();
   $('npShow').textContent=c.n; $('npNext').textContent=queue[0]?('Sırada: '+queue[0].n):'';
