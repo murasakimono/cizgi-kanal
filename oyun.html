@@ -155,7 +155,7 @@ function update(dt){
   P.vy += GRAV*dt; if(P.vy>1400) P.vy=1400;
   if(!keys.j && P.vy<0) P.vy += GRAV*dt*1.2; // kısa zıplama
   P.coyote-=dt; P.buf-=dt; P.inv-=dt; P.boost-=dt;
-  if(P.buf>0 && (P.on||P.coyote>0)){ P.vy=-JUMP; P.on=false; P.coyote=0; P.buf=0; P.squash=.75; SFX.jump(); }
+  if(P.buf>0 && (P.on||P.coyote>0)){ P.vy=-JUMP; P.on=false; P.coyote=0; P.buf=0; P.squash=1.06; SFX.jump(); }
   // yatay
   P.x += P.vx*dt; if(P.x<0) P.x=0;
   const box={x:P.x,y:P.y,w:P.w,h:P.h};
@@ -165,7 +165,7 @@ function update(dt){
   P.y += P.vy*dt; box.x=P.x; box.y=P.y;
   for(const p of plats){ if(p.k==='w') continue;
     if(rects(box,p)){
-      if(P.vy>=0 && oldBottom<=p.y+Math.max(8,p.dy+8)){ P.y=p.y-P.h; P.vy=0; P.on=true; P.x+=p.dx; if(!wasOn) P.squash=1.18; }
+      if(P.vy>=0 && oldBottom<=p.y+Math.max(8,p.dy+8)){ P.y=p.y-P.h; P.vy=0; P.on=true; P.x+=p.dx; if(!wasOn) P.squash=0.92; }
       else if(P.vy<0 && p.k==='g' && P.y>p.y+p.h-20){ P.y=p.y+p.h; P.vy=0; }
       box.y=P.y; } }
   if(wasOn && !P.on && P.vy>=0) P.coyote=.1;
@@ -244,9 +244,13 @@ function drawGoal(){ const x=lvl.goal-camX; const gy=groundY(lvl.goal+40);
   else { ctx.fillStyle='#fff'; ctx.fillRect(x,gy-150,6,150); ctx.fillStyle='#ff4d6d'; heartPath(x+30,gy-150,40); ctx.fill(); ctx.fillStyle='#fff'; ctx.font='bold 14px Space Grotesk'; ctx.textAlign='center'; ctx.fillText('BİTİŞ',x+3,gy-158); } }
 function drawPlayer(){ const im=IMG.metehan; const x=P.x-camX+P.w/2, y=P.y+P.h; if(P.inv>0 && Math.floor(t*14)%2) return;
   ctx.save(); ctx.translate(x,y); ctx.scale(P.face,1);
-  const moving=Math.abs(P.vx)>20 && P.on; const bob=moving?Math.abs(Math.sin(P.walk*6))*-5:0; const tilt=moving?Math.sin(P.walk*6)*.06:(P.on?0:-.08);
-  const sy=P.squash, sx=1/Math.sqrt(sy);
-  ctx.fillStyle='#0003'; ctx.beginPath(); ctx.ellipse(0,0,24,6,0,0,7); if(P.on) ctx.fill();
+  const moving=Math.abs(P.vx)>20 && P.on;
+  // yürürken adım ritminde hafif yaylanma, dururken nefes, havada hafif öne eğilme
+  const bob=moving? -Math.abs(Math.sin(P.walk*5))*2.2 : 0;
+  const breathe=(!moving&&P.on)? 1+Math.sin(t*2.2)*0.012 : 1;
+  const tilt=P.on? (moving?0.025:0) : (P.vy<0?0.06:0.03);
+  const sy=P.squash*breathe, sx=1/Math.sqrt(P.squash);
+  ctx.fillStyle='#0003'; ctx.beginPath(); ctx.ellipse(0,0,22,5,0,0,7); if(P.on) ctx.fill();
   ctx.translate(0,bob); ctx.rotate(tilt); ctx.scale(sx,sy);
   if(im&&im.complete){ const h=94, w=im.width*h/im.height; ctx.drawImage(im,-w/2,-h,w,h); } else { ctx.fillStyle='#222'; ctx.fillRect(-18,-94,36,94); }
   if(P.boost>0){ ctx.fillStyle='#ffcf5a'; ctx.font='18px sans-serif'; ctx.fillText('☕',-30,-90); }
