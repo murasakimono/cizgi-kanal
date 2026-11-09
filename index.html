@@ -238,7 +238,7 @@ const isExt=it=>isDz(it)||isTm(it);
 /* süreli oynatıcılar (VidMoly, web.tv): olay göndermezler; bölüm süresine göre sıradakine geç.
    İzleyici oynatıcıya tıklayıp başlatınca (sayfa odağı iframe'e geçer) süre o andan sayılır. */
 let tmT={dur:0,start:0,restarted:false,done:true};
-addEventListener('blur',()=>{ const c=cur(); if(!c||!isTm(c.id)) return; setTimeout(()=>{ if(document.activeElement===$('ext') && !tmT.restarted && Date.now()-tmT.start<120000){ tmT.start=Date.now(); tmT.restarted=true; } },0); });
+addEventListener('blur',()=>{ const c=cur(); if(!c||!isTm(c.id)||tmT.restarted) return; if(Date.now()-tmT.start<180000){ tmT.start=Date.now(); tmT.restarted=true; } });
 setInterval(()=>{ const c=cur(); if(!c||!isTm(c.id)||tmT.done) return; const left=tmT.dur-(Date.now()-tmT.start)/1000; $('lower').classList.toggle('on', left<45 && left>3); if(left<=-8){ tmT.done=true; next(true); } },1000);
 /* dzen oynatıcısı: her saniye {event:'timeupdate',time,duration} gönderir; süre dolunca sıradakine geç */
 let dzT={t:0,d:0,done:false,last:0};
