@@ -526,7 +526,7 @@ $('none').onclick=()=>{ on=new Set(); save(); renderKeys(); resetQueue(); };
 function goFull(){ const el=document.documentElement; const f=el.requestFullscreen||el.webkitRequestFullscreen; if(f && !document.fullscreenElement && !document.webkitFullscreenElement){ try{ const p=f.call(el); if(p&&p.catch) p.catch(()=>{}); }catch(e){} } }
 $('fs').onclick=()=>{ if(document.fullscreenElement||document.webkitFullscreenElement){ (document.exitFullscreen||document.webkitExitFullscreen).call(document); } else { const el=document.documentElement; if(el.requestFullscreen||el.webkitRequestFullscreen) goFull(); else toast("iPhone'da: Paylaş → Ana Ekrana Ekle, oradan aç"); } };
 
-document.addEventListener('keydown',e=>{ if(!started) return;
+document.addEventListener('keydown',e=>{ if(!started) return; if(e.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   if(e.key==='ArrowRight'||e.key==='n') next(true);
   else if(e.key==='ArrowLeft') prev();
   else if(e.key===' '){ e.preventDefault(); $('play').click(); }
