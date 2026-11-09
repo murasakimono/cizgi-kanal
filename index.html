@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Çizgi Kanal">
 <meta name="theme-color" content="#0b0912">
+<meta name="robots" content="noindex, nofollow">
 <title>Çizgi Kanal</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -91,6 +92,11 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
 .toast.on{opacity:1;transform:translate(-50%,0)}
 #vid{position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;object-fit:contain}
 #vid.on{display:block}
+#ext{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:#000}
+#ext.on{display:block}
+#tv.extmode #tap{bottom:auto;height:22%}
+.arch textarea,.arch select{appearance:none;border:1px solid #ffffff22;background:#0d0b13;color:var(--ink);border-radius:12px;padding:12px;font:inherit;font-size:13px}
+.arch textarea{min-height:90px;resize:vertical}
 #cc.on{background:var(--phos);color:#04140b}
 .arch{margin-top:16px;border-top:1px solid #ffffff1a;padding-top:14px;display:flex;flex-direction:column;gap:8px}
 .arch h3{font-family:'Bungee',sans-serif;font-size:13px;letter-spacing:2px}
@@ -101,7 +107,7 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
 </head>
 <body>
 <div id="tv">
-  <div id="player-wrap"><div id="player"></div><video id="vid" playsinline preload="auto"></video></div>
+  <div id="player-wrap"><div id="player"></div><video id="vid" playsinline preload="auto"></video><iframe id="ext" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe></div>
   <div id="tap"></div>
   <div class="bug"><i></i>ÇİZGİ KANAL</div>
   <div id="lower"><div class="tag">SIRADA</div><div class="txt" id="lowerTxt"></div></div>
@@ -138,6 +144,15 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
       <input id="jfUrl" placeholder="https://bilgisayar.tailxxxx.ts.net" autocomplete="off" autocapitalize="off" spellcheck="false">
       <input id="jfKey" placeholder="API anahtarı" autocomplete="off" autocapitalize="off" spellcheck="false">
       <div class="prow"><button class="pbtn" id="jfSave">BAĞLAN</button><button class="pbtn" id="jfShare">DİĞER CİHAZA AKTAR</button></div>
+    </section>
+    <section class="arch">
+      <h3>BAĞLANTI EKLE</h3>
+      <p class="hint">YouTube ya da dzen.ru bölüm linklerini alt alta yapıştır. dzen için videonun "Paylaş → Yerleştir" linki (dzen.ru/embed/…) gerekir. Bu cihazda saklanır; diğer cihazlara "Diğer cihaza aktar" ile geçer.</p>
+      <select id="lnShow"></select>
+      <input id="lnNew" placeholder="Yeni dizi adı (listede yoksa)" autocomplete="off">
+      <textarea id="lnText" placeholder="https://dzen.ru/embed/oVUYvugoJAAA&#10;https://www.youtube.com/watch?v=..."></textarea>
+      <div class="prow"><button class="pbtn" id="lnAdd">EKLE</button><button class="pbtn" id="lnClear">EKLEDİKLERİMİ SİL</button></div>
+      <p class="hint" id="lnState"></p>
     </section>
   </aside>
   <div class="toast" id="toast"></div>
@@ -202,11 +217,25 @@ window.onYouTubeIframeAPIReady=()=>{
 function cur(){ return history[pos]; }
 function playCurrent(){ const c=cur(); if(!c) return; updateNP();
   const v=$('vid');
-  if(isLocal(c.id)){ try{ if(ready) player.stopVideo(); }catch(e){}
+  if(isLocal(c.id)){ try{ if(ready) player.stopVideo(); }catch(e){} { const ex=$('ext'); ex.classList.remove('on'); ex.src='about:blank'; tv.classList.remove('extmode'); }
     v.classList.add('on'); v.src=jfStream(c.id.jf); const p=v.play(); if(p&&p.catch) p.catch(()=>{ showUI(); toast('Başlamadıysa ▶ tuşuna bas'); });
     return; }
   v.pause(); v.removeAttribute('src'); v.load(); v.classList.remove('on');
+  const ex=$('ext');
+  if(isDz(c.id)){ try{ if(ready) player.stopVideo(); }catch(e){} dzT={t:0,d:0,done:false,last:Date.now()}; ex.src='https://dzen.ru/embed/'+c.id.slice(3)+'?autoplay=1'; ex.classList.add('on'); tv.classList.add('extmode'); return; }
+  if(ex.classList.contains('on')){ ex.classList.remove('on'); ex.src='about:blank'; } tv.classList.remove('extmode');
   if(!ready) return; player.loadVideoById(c.id); }
+const isDz=it=>typeof it==='string'&&it.startsWith('dz:');
+/* dzen oynatıcısı: her saniye {event:'timeupdate',time,duration} gönderir; süre dolunca sıradakine geç */
+let dzT={t:0,d:0,done:false,last:0};
+addEventListener('message',e=>{ if(e.origin!=='https://dzen.ru') return; let m=e.data; if(typeof m==='string'){ try{m=JSON.parse(m);}catch(_){return;} } if(!m||!m.event) return;
+  const c=cur(); if(!c||!isDz(c.id)) return;
+  if(m.event==='timeupdate'){ dzT.t=m.time; dzT.d=m.duration||dzT.d; dzT.last=Date.now(); setPlayIco(true);
+    const left=dzT.d-dzT.t; $('lower').classList.toggle('on', dzT.d>60 && left<45 && left>3);
+    if(!dzT.done && dzT.d>30 && left<=1.2){ dzT.done=true; next(true); } }
+  if(/end|finish|complete/i.test(m.event) && !dzT.done){ dzT.done=true; next(true); }
+  if(/error/i.test(m.event)) onErr();
+});
 /* altyazı: varsayılan kapalı, CC tuşuyla aç/kapat (tercih hatırlanır) */
 let ccOn=false; try{ ccOn=localStorage.getItem('cizgi-kanal-cc')==='1'; }catch(e){}
 function applyCC(){ if(!ready) return; try{ if(ccOn){ player.loadModule('captions'); player.setOption('captions','track',{languageCode:'tr'}); } else { try{ player.setOption('captions','track',{}); }catch(e){} player.unloadModule('captions'); player.unloadModule('cc'); } }catch(e){} $('cc').classList.toggle('on',ccOn); }
@@ -221,7 +250,7 @@ function next(withCard=true,immediate=false){
   transition(withCard,null,immediate);
   setTimeout(checkStuck,4000);
 }
-function checkStuck(){ const c=cur(); if(c&&isLocal(c.id)) return; if(!ready) return; try{ const s=player.getPlayerState(); if(s!==1&&s!==3&&s!==2){ showUI(); toast('Başlamadıysa ▶ tuşuna bas'); } }catch(e){} }
+function checkStuck(){ const c=cur(); if(c&&isDz(c.id)){ if(Date.now()-dzT.last>15000){ showUI(); toast('Başlamadıysa ekrana dokun'); } return; } if(c&&isLocal(c.id)) return; if(!ready) return; try{ const s=player.getPlayerState(); if(s!==1&&s!==3&&s!==2){ showUI(); toast('Başlamadıysa ▶ tuşuna bas'); } }catch(e){} }
 function prev(){ if(pos>0){ pos--; transition(true,'TEKRAR'); } else toast('Bu ilk bölüm'); }
 let tTimer=null;
 function transition(withCard,label,immediate){
@@ -230,7 +259,7 @@ function transition(withCard,label,immediate){
   if(immediate){ playCurrent(); }
   staticOn(); $('cardLbl').textContent=label||'ŞİMDİ'; $('cardShow').textContent=c.n; $('cardNext').textContent=queue[0]?('sonra: '+queue[0].n):'';
   clearTimeout(tTimer);
-  if(!immediate){ try{ if(ready) player.pauseVideo(); }catch(e){} try{ $('vid').pause(); }catch(e){} }
+  if(!immediate){ try{ if(ready) player.pauseVideo(); }catch(e){} try{ $('vid').pause(); }catch(e){} try{ const ex=$('ext'); if(ex.classList.contains('on')){ ex.src='about:blank'; } }catch(e){} }
   setTimeout(()=>{ $('card').classList.add('on'); },350);
   if(!immediate) tTimer=setTimeout(()=>{ playCurrent(); },700);
   setTimeout(()=>{ $('card').classList.remove('on'); staticOff(); },2300);
@@ -247,7 +276,7 @@ function onErr(){ // gömülemeyen ya da silinmiş video: sessizce atla
 }
 /* bölümün sonuna doğru "SIRADA" alt yazısı */
 let lowerIv=null;
-function scheduleLower(){ clearInterval(lowerIv); lowerIv=setInterval(()=>{ if(!ready) return; try{ const c=cur(), lv=c&&isLocal(c.id), vv=$('vid'); const d=lv?vv.duration:player.getDuration(), t=lv?vv.currentTime:player.getCurrentTime(); const show=d>60 && d-t<45 && d-t>3; $('lower').classList.toggle('on',show); }catch(e){} },1000); }
+function scheduleLower(){ clearInterval(lowerIv); lowerIv=setInterval(()=>{ if(!ready) return; try{ const c=cur(); if(c&&isDz(c.id)) return; const lv=c&&isLocal(c.id), vv=$('vid'); const d=lv?vv.duration:player.getDuration(), t=lv?vv.currentTime:player.getCurrentTime(); const show=d>60 && d-t<45 && d-t>3; $('lower').classList.toggle('on',show); }catch(e){} },1000); }
 function setPlayIco(p){ $('playIco').innerHTML=p?'<path d="M8 5v14M16 5v14"/>':'<path d="M7 4v16l13-8z"/>'; }
 
 /* ---------- karlanma ---------- */
@@ -263,8 +292,8 @@ $('tap').addEventListener('click',()=>{ tv.classList.contains('showui')?tv.class
 $('ui').addEventListener('click',showUI);
 $('zap').onclick=()=>next(true);
 $('prev').onclick=()=>prev();
-$('play').onclick=()=>{ const c=cur(); if(c&&isLocal(c.id)){ const v=$('vid'); v.paused?v.play().catch(()=>{}):v.pause(); return; } if(!ready) return; const s=player.getPlayerState(); s===1?player.pauseVideo():player.playVideo(); };
-$('cc').onclick=()=>{ const c=cur(); if(c&&isLocal(c.id)){ toast('Arşiv bölümlerinde altyazı yok'); return; } ccOn=!ccOn; try{localStorage.setItem('cizgi-kanal-cc',ccOn?'1':'0');}catch(e){} applyCC(); toast(ccOn?'Altyazı açık':'Altyazı kapalı'); };
+$('play').onclick=()=>{ const c=cur(); if(c&&isDz(c.id)){ toast('dzen bölümünde ekranın ortasına dokunarak durdur'); return; } if(c&&isLocal(c.id)){ const v=$('vid'); v.paused?v.play().catch(()=>{}):v.pause(); return; } if(!ready) return; const s=player.getPlayerState(); s===1?player.pauseVideo():player.playVideo(); };
+$('cc').onclick=()=>{ const c=cur(); if(c&&(isLocal(c.id)||isDz(c.id))){ toast('Arşiv bölümlerinde altyazı yok'); return; } ccOn=!ccOn; try{localStorage.setItem('cizgi-kanal-cc',ccOn?'1':'0');}catch(e){} applyCC(); toast(ccOn?'Altyazı açık':'Altyazı kapalı'); };
 $('list').onclick=()=>openPanel();
 $('pick').onclick=()=>openPanel();
 $('close').onclick=()=>closePanel();
@@ -277,9 +306,9 @@ $('go').onclick=()=>{
 
 function renderKeys(){
   $('keys').innerHTML=SHOWS.map(s=>{ const na=!s.list.length;
-    const loc=s.list.filter(isLocal).length; const meta=na?(s.local===undefined?"YouTube'da yok · DVD'den eklenecek":"Arşivde bölüm yok"):(s.sub?s.sub+' · ':'')+s.list.length+' bölüm'+(loc?' <span class="loc">PC '+loc+'</span>':'');
+    const loc=s.list.filter(isLocal).length; const meta=na?(s.local===undefined&&!s.mine?"YouTube'da yok · DVD'den eklenecek":"Arşivde bölüm yok"):(s.sub?s.sub+' · ':'')+s.list.length+' bölüm'+(loc?' <span class="loc">PC '+loc+'</span>':'');
     return `<button class="key ${na?'na':(on.has(s.k)?'on':'')}" data-k="${s.k}" ${na?'aria-disabled="true"':''}><b>${s.n}</b><small>${meta}</small></button>`; }).join('');
-  $('hint').textContent=on.size+' dizi açık. Değişiklik sıradaki bölümden itibaren geçerli olur.'; renderJF();
+  $('hint').textContent=on.size+' dizi açık. Değişiklik sıradaki bölümden itibaren geçerli olur.'; renderJF(); renderLinks();
 }
 $('keys').addEventListener('click',e=>{ const b=e.target.closest('.key'); if(!b||b.classList.contains('na')) return; const k=b.dataset.k; on.has(k)?on.delete(k):on.add(k); save(); renderKeys(); resetQueue(); if(started) updateNP(); });
 $('all').onclick=()=>{ on=new Set(SHOWS.filter(s=>s.list.length).map(s=>s.k)); save(); renderKeys(); resetQueue(); if(started) updateNP(); };
@@ -298,7 +327,8 @@ document.addEventListener('keydown',e=>{ if(!started) return;
 /* ---------- Kendi Arşivim: PC'deki Jellyfin sunucusu ---------- */
 let JF=null; try{ JF=JSON.parse(localStorage.getItem('cizgi-kanal-jf')||'null'); }catch(e){}
 // diğer cihazdan gelen aktarım linki: ?arsiv=...
-try{ const q=new URLSearchParams(location.search).get('arsiv'); if(q){ JF=JSON.parse(decodeURIComponent(escape(atob(q)))); localStorage.setItem('cizgi-kanal-jf',JSON.stringify(JF)); window.history.replaceState(null,'',location.pathname); } }catch(e){}
+const _QS=new URLSearchParams(location.search);
+try{ const q=_QS.get('arsiv'); if(q){ JF=JSON.parse(decodeURIComponent(escape(atob(q)))); localStorage.setItem('cizgi-kanal-jf',JSON.stringify(JF)); } }catch(e){}
 const jfStream=id=>`${JF.url}/Videos/${id}/stream.mp4?static=true&api_key=${encodeURIComponent(JF.key)}`;
 const norm=s=>s.toLocaleLowerCase('tr').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
 const ALIAS={spongebob:'sbob',sungerbob:'sbob',sungerbobkarepantolon:'sbob',spongebobsquarepants:'sbob',penguinsofmadagascar:'penguen',madagaskarpenguenleri:'penguen',thepenguinsofmadagascar:'penguen',dannyphantom:'danny',winxclub:'winx',winx:'winx',theamazingworldofgumball:'gumball',gumballinmuhtesemdunyasi:'gumball',regularshow:'surekli',surekidizi:'surekli',teentitansgo:'ttg',ben10:'ben10',thepowerpuffgirls:'ppg',powerpuffgirls:'ppg',webarebears:'bears',kafadarayilar:'bears',unclegrandpa:'grandpa',dayidede:'grandpa',campLazlo:'lazlo',camplazlo:'lazlo',kamplazlo:'lazlo',totaldramaallstars:'tdas',totaldramaisland:'tdas',dramaadasi:'tdas',americandragonjakelong:'dragon',gencejder:'dragon',bigcitygreens:'greens',greenlerinbuyuksehirmacerasi:'greens',theemperorsnewschool:'kuzco',saskinimparatorunokulu:'kuzco',phineasandferb:'pnf',fineasveforb:'pnf',kickbuttowski:'kick',kickbuttowskisuburbandaredevil:'kick',johnnytest:'jtest',johnnybravo:'bravo',clarence:'clarence'};
@@ -332,8 +362,35 @@ function renderJF(){
     : JF.ok ? `Bağlı · ${JF.count} bölüm. Yeni bölümler her açılışta ve 15 dakikada bir eklenir.` : 'Ayarlı ama şu an ulaşılamıyor (PC kapalı olabilir). Kanal YouTube bölümleriyle devam ediyor.';
 }
 $('jfSave').onclick=()=>{ const url=$('jfUrl').value.trim().replace(/\/+$/,''), key=$('jfKey').value.trim(); if(!url||!key){ toast('Adres ve anahtar gerekli'); return; } JF={url,key}; try{localStorage.setItem('cizgi-kanal-jf',JSON.stringify(JF));}catch(e){} loadJF(false); };
-$('jfShare').onclick=async()=>{ if(!JF||!JF.url){ toast('Önce bağlan'); return; } const link=location.origin+location.pathname+'?arsiv='+btoa(unescape(encodeURIComponent(JSON.stringify({url:JF.url,key:JF.key})))); try{ await navigator.clipboard.writeText(link); toast('Link kopyalandı, diğer cihazda aç'); }catch(e){ prompt('Bu linki diğer cihazda aç:',link); } };
+$('jfShare').onclick=async()=>{ if((!JF||!JF.url)&&LINKS.length){ const l=location.origin+location.pathname+'?linkler='+btoa(unescape(encodeURIComponent(JSON.stringify(LINKS)))); try{ await navigator.clipboard.writeText(l); toast('Link kopyalandı, diğer cihazda aç'); }catch(e){ prompt('Bu linki diğer cihazda aç:',l); } return; } if(!JF||!JF.url){ toast('Önce bağlan'); return; } let link=location.origin+location.pathname+'?arsiv='+btoa(unescape(encodeURIComponent(JSON.stringify({url:JF.url,key:JF.key})))); if(LINKS.length) link+='&linkler='+btoa(unescape(encodeURIComponent(JSON.stringify(LINKS)))); try{ await navigator.clipboard.writeText(link); toast('Link kopyalandı, diğer cihazda aç'); }catch(e){ prompt('Bu linki diğer cihazda aç:',link); } };
 loadJF(true); setInterval(()=>loadJF(true),15*60*1000);
+
+/* ---------- Bağlantı ekle: kullanıcının kendi linkleri ---------- */
+let LINKS=[]; try{ LINKS=JSON.parse(localStorage.getItem('cizgi-kanal-links')||'[]'); }catch(e){}
+try{ const q=_QS.get('linkler'); if(q){ LINKS=JSON.parse(decodeURIComponent(escape(atob(q)))); localStorage.setItem('cizgi-kanal-links',JSON.stringify(LINKS)); } }catch(e){}
+if(_QS.get('arsiv')||_QS.get('linkler')) window.history.replaceState(null,'',location.pathname);
+function parseLink(u){ u=u.trim(); if(!u) return null; let m;
+  if(m=u.match(/dzen\.ru\/embed\/([A-Za-z0-9_-]+)/)) return 'dz:'+m[1];
+  if(m=u.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/)) return m[1];
+  if(/^[A-Za-z0-9_-]{11}$/.test(u)) return u;
+  return null; }
+function applyLinks(){
+  SHOWS.forEach(s=>{ s.list=s.list.filter(x=>!(s._mine&&s._mine.has(x))); s._mine=new Set(); });
+  for(let i=SHOWS.length-1;i>=0;i--) if(SHOWS[i].mine && !SHOWS[i].list.length) SHOWS.splice(i,1);
+  for(const L of LINKS){ let s=SHOWS.find(x=>x.k===L.k)||SHOWS.find(x=>norm(x.n)===norm(L.n||''));
+    if(!s){ s={k:'my_'+norm(L.n||'dizi'),n:L.n||'Dizi',ids:'',list:[],mine:true,_mine:new Set()}; SHOWS.push(s); on.add(s.k); }
+    s._mine=s._mine||new Set(); if(!s.list.includes(L.id)){ s.list.push(L.id); s._mine.add(L.id); } }
+  Object.keys(decks).forEach(k=>delete decks[k]);
+}
+function renderLinks(){ const sel=$('lnShow'); if(!sel) return; const cur=sel.value; sel.innerHTML=SHOWS.filter(s=>!s.jf).map(s=>`<option value="${s.k}">${s.n}</option>`).join('')+'<option value="__new">+ Yeni dizi</option>'; if(cur) sel.value=cur; $('lnState').textContent=LINKS.length?`Bu cihazda eklediğin ${LINKS.length} bağlantı var.`:''; }
+$('lnAdd').onclick=()=>{ const k=$('lnShow').value, nn=$('lnNew').value.trim(); const show= k==='__new'||nn ? {k:nn?null:k, n:nn} : {k, n:(SHOWS.find(s=>s.k===k)||{}).n};
+  if(k==='__new'&&!nn){ toast('Yeni dizi adı yaz'); return; }
+  const lines=$('lnText').value.split(/\s+/); let ok=0, bad=0;
+  for(const ln of lines){ if(!ln.trim()) continue; const id=parseLink(ln); if(!id){ bad++; continue; } if(!LINKS.some(x=>x.id===id)){ LINKS.push({k:show.k||null,n:show.n,id}); ok++; } }
+  try{ localStorage.setItem('cizgi-kanal-links',JSON.stringify(LINKS)); }catch(e){}
+  applyLinks(); renderKeys(); $('lnText').value=''; toast(`${ok} bağlantı eklendi`+(bad?`, ${bad} tanınmadı`:'')); };
+$('lnClear').onclick=()=>{ LINKS=[]; try{ localStorage.removeItem('cizgi-kanal-links'); }catch(e){} applyLinks(); renderKeys(); toast('Eklediğin bağlantılar silindi'); };
+applyLinks();
 
 const vid=$('vid');
 vid.addEventListener('ended',()=>next(true));
