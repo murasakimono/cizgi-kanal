@@ -360,7 +360,8 @@ function transition(withCard,label,immediate){
   if(!immediate){ try{ if(ready) player.pauseVideo(); }catch(e){} try{ $('vid').pause(); }catch(e){} try{ const ex=$('ext'); if(ex.classList.contains('on')){ ex.src='about:blank'; } }catch(e){} }
   setTimeout(()=>{ $('card').classList.add('on'); },350);
   if(!immediate) tTimer=setTimeout(()=>{ playCurrent(); },700);
-  setTimeout(()=>{ $('card').classList.remove('on'); staticOff(); }, note?4800:2300);
+  if(note){ setTimeout(staticOff,1100); setTimeout(()=>{ $('card').classList.remove('on'); },5200); }
+  else setTimeout(()=>{ $('card').classList.remove('on'); staticOff(); },2300);
 }
 function onState(e){
   if(e.data===YT.PlayerState.ENDED){ next(true); }
