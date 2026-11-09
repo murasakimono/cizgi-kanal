@@ -200,7 +200,7 @@ function transition(withCard,label,immediate){
   if(immediate){ playCurrent(); }
   staticOn(); $('cardLbl').textContent=label||'ŞİMDİ'; $('cardShow').textContent=c.n; $('cardNext').textContent=queue[0]?('sonra: '+queue[0].n):'';
   clearTimeout(tTimer);
-  if(ready){ try{player.stopVideo();}catch(e){} }
+  if(ready && !immediate){ try{player.pauseVideo();}catch(e){} }
   setTimeout(()=>{ $('card').classList.add('on'); },350);
   if(!immediate) tTimer=setTimeout(()=>{ playCurrent(); },700);
   setTimeout(()=>{ $('card').classList.remove('on'); staticOff(); },2300);
