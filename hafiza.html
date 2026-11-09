@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0912">
+<title>Diva TV · Hafıza Kartları</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Bungee&family=VT323&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{min-height:100%;background:radial-gradient(1000px 700px at 50% 0%,#3a2350,#0b0912 75%) fixed;color:#fff;font-family:'Space Grotesk',system-ui,sans-serif}
+body{display:flex;flex-direction:column;align-items:center;padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));min-height:100vh;min-height:100dvh}
+header{width:min(760px,100%);display:flex;align-items:center;justify-content:space-between;gap:10px}
+h1{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:clamp(30px,6vw,46px);color:#fff4ea;line-height:1}
+.stat{font-family:'VT323',monospace;font-size:24px;color:#ffcf5a;white-space:nowrap}
+.ib{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#ffffff1a;text-decoration:none;font-size:18px;border:0;color:#fff;cursor:pointer}
+.board{flex:1;display:grid;place-items:center;width:100%}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(6px,1.6vw,14px);width:min(92vw,calc((100dvh - 120px) * .8),620px)}
+@media (orientation:landscape) and (max-height:600px){ .grid{grid-template-columns:repeat(8,1fr);width:min(96vw,calc((100dvh - 90px) * 3.6))} }
+.card{aspect-ratio:3/4;perspective:800px;cursor:pointer}
+.in{position:relative;width:100%;height:100%;transition:transform .45s cubic-bezier(.3,1.4,.5,1);transform-style:preserve-3d}
+.card.up .in,.card.ok .in{transform:rotateY(180deg)}
+.f{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:grid;place-items:center;overflow:hidden}
+.back{background:linear-gradient(150deg,#ff6b8a,#7a3b8f);border:3px solid #ffffff33;box-shadow:0 6px 14px -6px #000a}
+.back span{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(16px,3.4vw,26px);color:#fff4ea}
+.back span b{font-family:'Bungee',sans-serif;font-style:normal;font-size:.45em;background:#fff;color:#d22f50;border-radius:4px;padding:1px 4px;vertical-align:.6em;margin-left:2px}
+.front{transform:rotateY(180deg);background:#fff8f0;border:3px solid #ffcf5a}
+.front img{max-width:86%;max-height:88%;object-fit:contain}
+.front .em{font-size:clamp(30px,8vw,56px)}
+.card.ok .front{border-color:#7dffb2;box-shadow:0 0 18px #7dffb288}
+.card.ok{animation:pop .4s}
+@keyframes pop{50%{transform:scale(1.08)}}
+.win{position:fixed;inset:0;z-index:10;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:20px;background:#0b0912e8}
+.win.on{display:flex}
+.win img{height:min(36vh,240px)}
+.win h2{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:clamp(40px,8vw,72px);color:#fff4ea}
+.win p{color:#e9e2f5}
+.go{appearance:none;border:0;cursor:pointer;font-family:'Bungee',sans-serif;font-size:17px;padding:14px 28px;border-radius:18px;color:#fff;background:linear-gradient(#ff5d78,#d22f50);box-shadow:0 6px 0 #7a1328}
+.lnk{color:#ffcf5a}
+</style>
+</head>
+<body>
+<header><a class="ib" href="./" aria-label="Kanala dön">📺</a><h1>Hafıza Kartları</h1><div class="stat" id="stat">0 hamle</div><button class="ib" id="re" aria-label="Yeniden başla">↻</button></header>
+<div class="board"><div class="grid" id="grid"></div></div>
+<div class="win" id="win"><img src="img/sarilma.png" alt=""><h2>Hepsini buldun!</h2><p id="winP"></p><button class="go" id="again">TEKRAR</button><a class="lnk" href="./">Kanala dön</a></div>
+<script>
+const FACES=['img/m_stand.png','img/i_idle.png','img/i_wave.png','img/m_jump.png','img/i_run.png','img/sarilma.png','img/m_walk1.png','🍿'];
+let REK=null; try{ REK=JSON.parse(localStorage.getItem('diva-hafiza-rekor')); }catch(e){}
+let open=[], moves=0, found=0, lock=false, t0=0, timer=null;
+let AC=null; function beep(f1,f2,d){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); const o=AC.createOscillator(),g=AC.createGain(); o.type='triangle'; o.frequency.setValueAtTime(f1,AC.currentTime); o.frequency.exponentialRampToValueAtTime(f2,AC.currentTime+d); g.gain.setValueAtTime(.07,AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d); o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime+d); }catch(e){} }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function stat(){ const s=t0?Math.floor((Date.now()-t0)/1000):0; document.getElementById('stat').textContent=`${moves} hamle · ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
+function build(){ const g=document.getElementById('grid'); g.innerHTML=''; open=[]; moves=0; found=0; lock=false; t0=0; clearInterval(timer); stat();
+  shuffle([...FACES,...FACES]).forEach(f=>{ const c=document.createElement('div'); c.className='card'; c.dataset.f=f;
+    c.innerHTML=`<div class="in"><div class="f back"><span>Diva<b>TV</b></span></div><div class="f front">${f.startsWith('img/')?`<img src="${f}" alt="" draggable="false">`:`<span class="em">${f}</span>`}</div></div>`;
+    c.onclick=()=>flip(c); g.appendChild(c); }); }
+function flip(c){ if(lock||c.classList.contains('up')||c.classList.contains('ok')) return; if(!t0){ t0=Date.now(); timer=setInterval(stat,1000); }
+  c.classList.add('up'); beep(600,700,.05); open.push(c);
+  if(open.length===2){ moves++; stat(); const [a,b]=open;
+    if(a.dataset.f===b.dataset.f){ setTimeout(()=>{ a.classList.add('ok'); b.classList.add('ok'); beep(880,1320,.12); found++; open=[]; if(found===FACES.length) win(); },350); }
+    else { lock=true; setTimeout(()=>{ a.classList.remove('up'); b.classList.remove('up'); open=[]; lock=false; },850); } } }
+function win(){ clearInterval(timer); const s=Math.floor((Date.now()-t0)/1000); const yeni=REK===null||moves<REK; if(yeni){ REK=moves; try{ localStorage.setItem('diva-hafiza-rekor',moves); }catch(e){} }
+  document.getElementById('winP').textContent=`${moves} hamle, ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}. `+(yeni?'Yeni rekor! ♥':`Rekor: ${REK} hamle.`)+(moves<=12?' Hafızana hayran kaldık.':'');
+  [523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,f,.15),i*120)); setTimeout(()=>document.getElementById('win').classList.add('on'),600); }
+document.getElementById('re').onclick=build; document.getElementById('again').onclick=()=>{ document.getElementById('win').classList.remove('on'); build(); };
+build();
+</script>
+</body>
+</html>

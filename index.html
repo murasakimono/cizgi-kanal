@@ -12,6 +12,7 @@
 <title>Diva TV</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
 <link rel="icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Bungee&family=VT323&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
@@ -118,7 +119,7 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
 .lk-screen{width:min(300px,78vw);aspect-ratio:4/3;border-radius:18% / 16%;background:#0b1a14;box-shadow:inset 0 0 50px #000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-family:'VT323',monospace;color:var(--phos);text-shadow:0 0 8px #7dffb288}
 .lk-title{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(46px,11vw,60px);line-height:.9;text-align:center;color:#fff4ea;text-shadow:0 0 14px #ff4d6d66}
 .lk-cift{height:min(22vh,150px);margin-bottom:-26px;position:relative;z-index:2;filter:drop-shadow(0 8px 12px #0009)}
-@media (max-height:520px){.lk-cift{display:none}}
+@media (max-height:520px){.lk-cift{display:none} #lock{flex-direction:row;gap:28px} .lk-screen{width:min(260px,40vw)} .lk-pad{grid-template-columns:repeat(3,64px);gap:8px} .lk-pad button{height:50px;font-size:19px}}
 .lk-dots{display:flex;gap:14px}.lk-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--phos)}.lk-dots i.on{background:var(--phos);box-shadow:0 0 10px var(--phos)}
 .lk-dots.shake{animation:shake .4s}@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 .lk-msg{font-size:20px;min-height:22px}
@@ -154,6 +155,60 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
 .confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .confetti i{position:absolute;top:-20px;width:10px;height:14px;border-radius:2px;animation:fall linear infinite}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+/* ===== yeni: üst araç çubuğu, rehber, uyku, birlikte, oyunlar ===== */
+#tools{position:absolute;z-index:7;top:calc(12px + env(safe-area-inset-top));left:calc(14px + env(safe-area-inset-left));display:flex;gap:10px;transform:translateY(-140%);transition:transform .3s}
+#tv.showui #tools{transform:none}
+#tools .cb{width:auto;padding:0 14px;height:44px;font-family:'Bungee',sans-serif;font-size:12px;letter-spacing:1px;gap:6px;display:flex;align-items:center;background:#000a}
+#tools .cb.act{background:var(--hot)}
+@media (max-width:720px){ .cb{width:44px;height:44px;border-radius:13px} #ui{gap:8px} .cb.zap{padding:0 12px} #tools .cb{height:40px;padding:0 11px;font-size:11px} #tools .cb span{display:none} }
+.sheet{position:relative;width:min(560px,94vw);max-height:86vh;overflow:auto;background:#17141fee;border:1px solid #ffffff1f;border-radius:22px;padding:22px 22px 18px;box-shadow:0 30px 60px -20px #000c;backdrop-filter:blur(10px)}
+.sheet h3{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:38px;line-height:1;margin-bottom:12px;color:#fff4ea}
+.sheet .x{position:absolute;top:12px;right:12px;width:40px;height:40px}
+.gl{display:flex;flex-direction:column;gap:8px}
+.gi{display:flex;align-items:center;gap:12px;background:#ffffff0d;border-radius:14px;padding:10px 12px;cursor:pointer;border:0;color:var(--ink);text-align:left;font:inherit}
+.gi .tm{font-family:'VT323',monospace;font-size:20px;color:var(--amber);min-width:62px}
+.gi b{font-family:'Bungee',sans-serif;font-size:13px;font-weight:400;letter-spacing:.5px}
+.gi small{display:block;color:var(--muted);font-size:12px}
+.gi.now{background:#ff4d6d2a;outline:1px solid #ff4d6d77}
+.gi.now .tm{color:var(--hot)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{appearance:none;border:0;border-radius:16px;padding:16px 12px;background:#ffffff12;color:#fff;font-family:'Bungee',sans-serif;font-size:13px;cursor:pointer}
+.opt.on{background:var(--hot)}
+#night{z-index:60;flex-direction:column;gap:16px;text-align:center;background:radial-gradient(800px 500px at 50% 30%,#1d1a3d,#05040a 75%)}
+#night img{height:min(42vh,280px);filter:drop-shadow(0 10px 20px #000) brightness(.85)}
+#night h3{font-family:'Instrument Serif',serif;font-style:italic;font-size:54px;font-weight:400;color:#fff4ea}
+#night p{color:var(--muted)}
+#night .moon{position:absolute;top:10%;right:14%;width:70px;height:70px;border-radius:50%;box-shadow:-16px 8px 0 0 #fff3c4;transform:rotate(-20deg)}
+#night .st{position:absolute;width:3px;height:3px;background:#fff;border-radius:50%;animation:tw 2.4s infinite}
+@keyframes tw{50%{opacity:.2}}
+.room-code{font-family:'Bungee',sans-serif;font-size:46px;letter-spacing:10px;text-align:center;color:var(--phos);margin:6px 0 2px}
+.row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.row input{flex:1;min-width:0;appearance:none;border:1px solid #ffffff22;background:#0d0b13;color:var(--ink);border-radius:12px;padding:12px;font:inherit;font-size:16px}
+.who{display:flex;gap:8px;margin:6px 0 4px}
+.who button{flex:1}
+.emo{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.emo button{appearance:none;border:0;width:48px;height:48px;border-radius:14px;background:#ffffff14;font-size:24px;cursor:pointer}
+#bubbles{position:absolute;z-index:11;left:calc(16px + env(safe-area-inset-left));bottom:calc(90px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:min(420px,70vw)}
+#bubbles div{background:#000c;backdrop-filter:blur(6px);border-radius:14px;padding:8px 12px;font-size:15px;animation:bin .3s ease;transition:opacity .5s}
+#bubbles div b{color:var(--hot);margin-right:6px}
+@keyframes bin{from{transform:translateY(10px);opacity:0}}
+#floaters{position:absolute;inset:0;z-index:11;pointer-events:none;overflow:hidden}
+#floaters i{position:absolute;bottom:-50px;font-style:normal;font-size:40px;animation:flt 3.2s ease-out forwards}
+@keyframes flt{to{transform:translateY(-75vh) scale(1.3);opacity:0}}
+.pill{position:absolute;z-index:6;top:calc(48px + env(safe-area-inset-top));right:calc(16px + env(safe-area-inset-right));background:#000a;border:1px solid var(--phos);color:var(--phos);font-family:'VT323',monospace;font-size:18px;padding:3px 10px;border-radius:20px;display:none;pointer-events:none}
+.pill.on{display:block}
+#chatIn{position:absolute;z-index:12;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(520px,92vw);display:none;gap:8px}
+#chatIn.on{display:flex}
+#chatIn input{flex:1;appearance:none;border:1px solid #ffffff33;background:#000d;color:#fff;border-radius:14px;padding:12px 14px;font:inherit;font-size:16px}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.gcard{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:190px;border-radius:18px;padding:12px;text-decoration:none;color:#fff;overflow:hidden;background:linear-gradient(160deg,#ff6b8a,#7a3b8f)}
+.gcard:nth-child(2){background:linear-gradient(160deg,#ffcf5a,#e8566b)}
+.gcard:nth-child(3){background:linear-gradient(160deg,#7dd3ff,#5b4bc4)}
+.gcard img{height:110px;filter:drop-shadow(0 6px 10px #0006)}
+.gcard b{font-family:'Bungee',sans-serif;font-size:13px;font-weight:400;text-align:center}
+.gcard small{font-size:12px;opacity:.85}
+.resume{appearance:none;border:1px solid #7dffb288;background:#7dffb21a;color:var(--phos);border-radius:14px;padding:10px 16px;font-family:'VT323',monospace;font-size:20px;cursor:pointer;display:none}
 </style>
 </head>
 <body>
@@ -174,6 +229,17 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
     <button class="cb" id="fs" title="Tam ekran" aria-label="Tam ekran"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
   </div>
 
+
+  <div id="tools">
+    <button class="cb" id="tGuide" aria-label="Yayın akışı">📋<span>REHBER</span></button>
+    <button class="cb" id="tSleep" aria-label="Uyku zamanlayıcı">🌙<span>UYKU</span></button>
+    <button class="cb" id="tRoom" aria-label="Birlikte izle">👥<span>BİRLİKTE</span></button>
+    <button class="cb" id="tChat" aria-label="Mesaj yaz" style="display:none">💬</button>
+  </div>
+  <div class="pill" id="pill"></div>
+  <div id="bubbles"></div>
+  <div id="floaters"></div>
+  <div id="chatIn"><input id="chatTxt" maxlength="140" placeholder="Bir şey yaz…" enterkeyhint="send"><button class="cb" id="chatSend">➤</button></div>
   <div id="static"><canvas id="noise"></canvas></div>
   <div id="card"><div class="box"><div class="lbl" id="cardLbl">ŞİMDİ</div><div class="show" id="cardShow"></div><div class="next" id="cardNext"></div></div></div>
   <div class="scan"></div>
@@ -191,7 +257,8 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
     <p>Çocukluğun bütün çizgi filmleri tek kanalda, rastgele ve arka arkaya. Bölüm bitince sıradaki kendiliğinden gelir; ekrana dokununca kumanda açılır.</p>
     <p class="sig">Metehan'dan, İlayda'ya ♥</p>
     <button class="go" id="go">▶ YAYINI BAŞLAT</button>
-    <a class="game" href="oyun.html">🎮 İLAYDA'YA ULAŞ</a>
+    <button class="resume" id="resume"></button>
+    <button class="game" id="gamesBtn" style="cursor:pointer">🎮 OYUNLAR</button>
     <button class="link" id="pick">Dizileri seç</button>
     <button class="link" id="openLetter" style="display:none">💌 Mektubu tekrar aç</button>
     </div>
@@ -203,6 +270,10 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
     <div class="keys" id="keys"></div>
     <div class="prow"><button class="pbtn" id="all">HEPSİ</button><button class="pbtn" id="none">HİÇBİRİ</button></div>
     <p class="hint" id="hint"></p>
+    <section class="arch">
+      <h3>AYARLAR</h3>
+      <label class="tog"><input type="checkbox" id="sfxOn"> Kanal değiştirirken cızırtı sesi</label>
+    </section>
     <section class="arch">
       <h3>♥ FAVORİLERİMİZ</h3>
       <p class="hint" id="favState">Beğendiğin bölümde kumandadaki ♥ tuşuna bas, buraya eklensin.</p>
@@ -232,6 +303,26 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
     <div class="env" id="env"><div class="env-flap"></div><div class="env-body"><div class="env-heart">♥</div><div class="env-txt">Sana bir not var</div></div></div>
     <div class="paper" id="paper"><div id="paperTxt"></div><button class="go small" id="letterClose">Kanala geç ▶</button></div>
   </div>
+
+  <div id="guide" class="ov"><div class="sheet"><button class="cb x" data-close="guide">✕</button><h3>Yayın akışı</h3><div class="gl" id="guideList"></div><div class="row"><button class="pbtn" id="gShuffle">🔀 AKIŞI KARIŞTIR</button></div></div></div>
+  <div id="sleepOv" class="ov"><div class="sheet"><button class="cb x" data-close="sleepOv">✕</button><h3>Uyku zamanlayıcı</h3><p class="hint" id="sleepState" style="margin:0 0 12px"></p><div class="opts" id="sleepOpts">
+    <button class="opt" data-m="ep">BU BÖLÜM BİTİNCE</button><button class="opt" data-m="30">30 DAKİKA</button><button class="opt" data-m="60">1 SAAT</button><button class="opt" data-m="90">1,5 SAAT</button><button class="opt" data-m="0" style="grid-column:1/-1">KAPALI</button></div></div></div>
+  <div id="night" class="ov"><div class="moon"></div><img src="img/sarilma.png" alt=""><h3>İyi geceler ♥</h3><p>Kanal uyudu. Dokununca kaldığı yerden devam eder.</p></div>
+  <div id="room" class="ov"><div class="sheet"><button class="cb x" data-close="room">✕</button><h3>Birlikte izle</h3>
+    <div id="roomIdle"><p class="hint" style="margin:0">İkiniz ayrı cihazlardan aynı bölümü aynı anda izlersiniz. Biri oda kurar, diğeri kodu girer. Bölüm değiştirme, duraklatma ve mesajlar iki tarafa da gider.</p>
+      <p class="hint" style="margin:10px 0 0">Ben:</p><div class="who"><button class="opt" data-who="Metehan">METEHAN</button><button class="opt" data-who="İlayda">İLAYDA</button></div>
+      <div class="row"><button class="go small" id="rHost" style="flex:1">ODA KUR</button></div>
+      <div class="row"><input id="rCode" inputmode="numeric" maxlength="4" placeholder="Oda kodu (4 hane)"><button class="pbtn" id="rJoin" style="flex:0 0 auto">KATIL</button></div></div>
+    <div id="roomOn" style="display:none"><div class="hint" style="margin:0;text-align:center" id="rState"></div><div class="room-code" id="rShow"></div>
+      <div class="emo" id="emoBar"><button>♥</button><button>😂</button><button>😍</button><button>😮</button><button>🥺</button></div>
+      <div class="row"><input id="rMsg" maxlength="140" placeholder="Mesaj yaz…" enterkeyhint="send"><button class="pbtn" id="rSend" style="flex:0 0 auto">GÖNDER</button></div>
+      <div class="row"><button class="pbtn" id="rLeave" style="flex:1">ODADAN ÇIK</button></div></div>
+  </div></div>
+  <div id="gamesOv" class="ov"><div class="sheet"><button class="cb x" data-close="gamesOv">✕</button><h3>Oyunlar</h3><div class="games">
+    <a class="gcard" href="oyun.html"><img src="img/m_walk1.png" alt=""><b>İLAYDA'YA ULAŞ</b><small id="rk1">Platform · 4 bölüm</small></a>
+    <a class="gcard" href="kalp.html"><img src="img/m_jump.png" alt=""><b>KALP YAKALA</b><small id="rk2">60 saniye</small></a>
+    <a class="gcard" href="hafiza.html"><img src="img/i_wave.png" alt=""><b>HAFIZA KARTLARI</b><small id="rk3">8 çift</small></a>
+  </div></div></div>
   <div id="special" class="ov">
     <div class="confetti" id="confetti"></div>
     <div class="sp-box"><div class="sp-title" id="spTitle"></div><div class="sp-text" id="spText"></div><button class="go small" id="spClose">♥</button></div>
@@ -330,7 +421,7 @@ function playCurrent(){ const c=cur(); if(!c) return; updateNP();
     return; }
   if(isDz(c.id)){ tmT.done=true; try{ if(ready) player.stopVideo(); }catch(e){} dzT={t:0,d:0,done:false,last:Date.now()}; ex.src='https://dzen.ru/embed/'+c.id.slice(3)+'?autoplay=1'; ex.classList.add('on'); tv.classList.add('extmode'); return; }
   tmT.done=true; if(ex.classList.contains('on')){ ex.classList.remove('on'); ex.src='about:blank'; } tv.classList.remove('extmode');
-  if(!ready) return; player.loadVideoById(c.id); }
+  if(!ready) return; if(window.RESUME&&RESUME.id===c.id&&RESUME.t>5){ player.loadVideoById({videoId:c.id,startSeconds:RESUME.t}); } else player.loadVideoById(c.id); window.RESUME=null; }
 const isDz=it=>typeof it==='string'&&it.startsWith('dz:');
 const isTm=it=>typeof it==='string'&&/^(vm|wt):/.test(it);
 const isExt=it=>isDz(it)||isTm(it);
@@ -555,6 +646,125 @@ function renderFavs(){ const l=$('favList'); if(!l) return; $('favOnly').checked
   l.innerHTML=FAVS.map((f,i)=>`<button data-i="${i}"><span>${(f.t||f.n).replace(/[<>&]/g,'')}</span><span>♥</span></button>`).join(''); }
 $('favList').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const f=FAVS[+b.dataset.i]; if(!f) return; closePanel(); if(!started){ $('start').style.display='none'; started=true; } history.push({k:f.k,n:f.n,id:f.id}); pos=history.length-1; transition(true,'FAVORİ',true); });
 $('favOnly').onchange=e=>{ favOnly=e.target.checked; try{ localStorage.setItem('cizgi-kanal-favonly',favOnly?'1':'0'); }catch(_){} if(favOnly&&!FAVS.length){ toast('Önce birkaç bölümü ♥ ile ekle'); } resetQueue(); if(started) updateNP(); };
+
+
+/* =====================================================================
+   YENİ ÖZELLİKLER: rehber, kaldığın yerden devam, kanal sesi, uyku zamanlayıcı,
+   birlikte izle + sohbet (PeerJS, sunucusuz), oyunlar menüsü
+   ===================================================================== */
+const LS={get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }};
+const esc=t=>String(t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+function openOv(id){ $(id).classList.add('on'); }
+function closeOv(id){ $(id).classList.remove('on'); }
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeOv(b.dataset.close));
+['guide','sleepOv','room','gamesOv'].forEach(id=>$(id).addEventListener('click',e=>{ if(e.target.id===id) closeOv(id); }));
+// kullanıcı eylemi mi (uyku "bölüm bitince" modu için)?
+let userAct=0; ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,()=>{ userAct=Date.now(); },true));
+const byUser=()=>Date.now()-userAct<800;
+
+/* ---------- kanal değiştirme sesi ---------- */
+let AC=null, sfxOn=LS.get('cizgi-kanal-ses',true);
+$('sfxOn').checked=sfxOn; $('sfxOn').onchange=e=>{ sfxOn=e.target.checked; LS.set('cizgi-kanal-ses',sfxOn); };
+function zapSound(){ if(!sfxOn) return; try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended') AC.resume();
+  const len=AC.sampleRate*0.42, buf=AC.createBuffer(1,len,AC.sampleRate), d=buf.getChannelData(0); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
+  const src=AC.createBufferSource(); src.buffer=buf; const f=AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value=2400; f.Q.value=.6; const g=AC.createGain(); g.gain.value=.12;
+  src.connect(f).connect(g).connect(AC.destination); src.start();
+  const o=AC.createOscillator(), og=AC.createGain(); o.type='square'; o.frequency.value=900; og.gain.setValueAtTime(.05,AC.currentTime); og.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+.05); o.connect(og).connect(AC.destination); o.start(); o.stop(AC.currentTime+.06); }catch(e){} }
+const _staticOn=staticOn; staticOn=function(){ zapSound(); _staticOn(); };
+
+/* ---------- kaldığın yerden devam ---------- */
+function curTime(){ const c=cur(); if(!c) return 0; try{ if(isLocal(c.id)) return $('vid').currentTime||0; if(isDz(c.id)) return dzT.t||0; if(!isExt(c.id)&&ready) return player.getCurrentTime()||0; }catch(e){} return 0; }
+setInterval(()=>{ if(!started) return; const c=cur(); if(!c||isLocal(c.id)) return; LS.set('cizgi-kanal-devam',{it:{k:c.k,n:c.n,id:c.id},t:Math.floor(curTime()),at:Date.now()}); },10000);
+(function(){ const d=LS.get('cizgi-kanal-devam',null); if(!d||!d.it||Date.now()-d.at>3*864e5) return;
+  const b=$('resume'); b.style.display='inline-block'; const mm=Math.floor(d.t/60), ss=String(d.t%60).padStart(2,'0'); b.textContent=`↻ Kaldığın yerden: ${d.it.n}`+(d.t>5&&typeof d.it.id==='string'&&!isExt(d.it.id)?` · ${mm}:${ss}`:'');
+  b.onclick=()=>{ $('start').style.display='none'; started=true; resetQueue(); history.push(d.it); pos=history.length-1; window.RESUME={id:d.it.id,t:d.t}; transition(true,'DEVAM',true); goFull(); }; })();
+
+/* ---------- yayın akışı / rehber ---------- */
+const EP_MIN=11;
+function renderGuide(){ fill(); while(queue.length<6){ const s=pickShow(); if(!s) break; queue.push({k:s.k,n:s.n,id:draw(s.k)}); }
+  const c=cur(); let t=Date.now(); let left=EP_MIN*60;
+  try{ if(c&&!isExt(c.id)&&!isLocal(c.id)&&ready){ const d=player.getDuration(), ct=player.getCurrentTime(); if(d) left=d-ct; } else if(c&&isDz(c.id)&&dzT.d){ left=dzT.d-dzT.t; } }catch(e){}
+  const hm=ms=>{ const d=new Date(ms); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); };
+  let html=''; if(c&&started) html+=`<div class="gi now"><span class="tm">ŞİMDİ</span><span><b>${esc(c.n)}</b><small>yayında</small></span></div>`;
+  t+=left*1000;
+  queue.forEach((q,i)=>{ html+=`<button class="gi" data-i="${i}"><span class="tm">${hm(t)}</span><span><b>${esc(q.n)}</b><small>${i===0?'sıradaki · dokun, hemen başlasın':'dokun, hemen başlasın'}</small></span></button>`; t+=EP_MIN*60000; });
+  $('guideList').innerHTML=html||'<p class="hint">Önce dizi seç.</p>'; }
+$('guideList').addEventListener('click',e=>{ const b=e.target.closest('button.gi'); if(!b) return; const i=+b.dataset.i; const it=queue.splice(i,1)[0]; queue.unshift(it); closeOv('guide');
+  if(!started){ $('start').style.display='none'; started=true; next(true,true); goFull(); } else next(true); });
+$('gShuffle').onclick=()=>{ resetQueue(); queue=[]; renderGuide(); if(started) updateNP(); toast('Akış karıştırıldı'); };
+$('tGuide').onclick=e=>{ e.stopPropagation(); renderGuide(); openOv('guide'); };
+
+/* ---------- uyku zamanlayıcı ---------- */
+let SLEEP={mode:'0',until:0};
+function renderSleep(){ document.querySelectorAll('#sleepOpts .opt').forEach(b=>b.classList.toggle('on',b.dataset.m===SLEEP.mode));
+  $('sleepState').textContent= SLEEP.mode==='0'?'Kapalı. Seçtiğin sürede kanal kendiliğinden kapanır.' : SLEEP.mode==='ep'?'Bu bölüm bitince kanal uyuyacak.' : `Kanal ${new Date(SLEEP.until).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}'de uyuyacak.`;
+  $('tSleep').classList.toggle('act',SLEEP.mode!=='0'); }
+$('sleepOpts').addEventListener('click',e=>{ const b=e.target.closest('.opt'); if(!b) return; const m=b.dataset.m; SLEEP={mode:m,until:/^\d+$/.test(m)&&m!=='0'?Date.now()+m*60000:0}; renderSleep(); toast(m==='0'?'Uyku zamanlayıcı kapandı':'Uyku zamanlayıcı kuruldu 🌙'); setTimeout(()=>closeOv('sleepOv'),400); });
+$('tSleep').onclick=e=>{ e.stopPropagation(); renderSleep(); openOv('sleepOv'); };
+function pauseAll(){ try{ if(ready) player.pauseVideo(); }catch(e){} try{ $('vid').pause(); }catch(e){} const ex=$('ext'); if(ex.classList.contains('on')){ ex.dataset.src=ex.src; ex.src='about:blank'; } }
+function goNight(){ SLEEP={mode:'0',until:0}; renderSleep(); pauseAll(); const n=$('night'); n.querySelectorAll('.st').forEach(x=>x.remove()); for(let i=0;i<40;i++){ const st=document.createElement('i'); st.className='st'; st.style.left=Math.random()*100+'%'; st.style.top=Math.random()*60+'%'; st.style.animationDelay=Math.random()*2+'s'; n.appendChild(st); } openOv('night'); }
+$('night').onclick=()=>{ closeOv('night'); const c=cur(); if(!c) return; if(isExt(c.id)||isLocal(c.id)) playCurrent(); else { try{ player.playVideo(); }catch(e){} } };
+setInterval(()=>{ if(SLEEP.until && Date.now()>SLEEP.until) goNight(); },5000);
+const _next=next; next=function(withCard=true,immediate=false){ if(SLEEP.mode==='ep' && started && !byUser() && !remoteApply){ goNight(); return; } return _next(withCard,immediate); };
+
+/* ---------- birlikte izle + sohbet ---------- */
+let ME=LS.get('cizgi-kanal-ben',''), peer=null, conn=null, isHost=false, remoteApply=false, roomCode='';
+function renderWho(){ document.querySelectorAll('[data-who]').forEach(b=>b.classList.toggle('on',b.dataset.who===ME)); }
+document.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>{ ME=b.dataset.who; LS.set('cizgi-kanal-ben',ME); renderWho(); });
+renderWho();
+function loadPeer(){ return new Promise((res,rej)=>{ if(window.Peer) return res(); const sc=document.createElement('script'); sc.src='https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'; sc.onload=res; sc.onerror=()=>rej(new Error('peerjs')); document.head.appendChild(sc); }); }
+const ICE={config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'}]}};
+function roomUI(state){ const onn=!!state; $('roomIdle').style.display=onn?'none':''; $('roomOn').style.display=onn?'':'none';
+  if(onn){ $('rState').textContent=state; $('rShow').textContent=isHost?roomCode:''; }
+  const linked=!!(conn&&conn.open); $('pill').classList.toggle('on',linked); $('pill').textContent=linked?'● BİRLİKTE':''; $('tChat').style.display=linked?'':'none'; $('tRoom').classList.toggle('act',linked); }
+function send(m){ if(conn&&conn.open){ try{ conn.send(m); }catch(e){} } }
+function bindConn(c){ conn=c;
+  c.on('open',()=>{ send({t:'hi',who:ME||'Biri'}); roomUI(isHost?'Bağlandı ♥ Kod:':'Odaya bağlandın ♥'); if(isHost&&started&&cur()) send({t:'item',it:cur(),time:curTime()}); });
+  c.on('data',onRemote);
+  c.on('close',()=>{ toast('Bağlantı koptu'); conn=null; roomUI(peer&&isHost?'Diğer cihaz bekleniyor… Kod:':null); });
+  c.on('error',()=>{}); }
+$('rHost').onclick=async()=>{ if(!ME){ toast('Önce kim olduğunu seç'); return; } try{ await loadPeer(); }catch(e){ toast('Bağlantı kütüphanesi yüklenemedi'); return; }
+  isHost=true; const tryOpen=()=>{ roomCode=String(1000+Math.floor(Math.random()*9000)); peer=new Peer('divatv-'+roomCode,ICE);
+    peer.on('open',()=>roomUI('Diğer cihaz bekleniyor… Kod:'));
+    peer.on('connection',c=>{ if(conn&&conn.open){ c.close(); return; } bindConn(c); });
+    peer.on('error',err=>{ if(err.type==='unavailable-id'){ peer.destroy(); tryOpen(); } else { toast('Oda hatası: '+err.type); } }); };
+  tryOpen(); };
+$('rJoin').onclick=async()=>{ if(!ME){ toast('Önce kim olduğunu seç'); return; } const code=$('rCode').value.trim(); if(!/^\d{4}$/.test(code)){ toast('4 haneli kodu gir'); return; }
+  try{ await loadPeer(); }catch(e){ toast('Bağlantı kütüphanesi yüklenemedi'); return; }
+  isHost=false; roomCode=code; peer=new Peer(undefined,ICE); roomUI('Bağlanıyor…');
+  peer.on('open',()=>{ const c=peer.connect('divatv-'+code,{reliable:true}); bindConn(c); setTimeout(()=>{ if(!(conn&&conn.open)) { roomUI(null); toast('Bağlanamadı. Kod doğru mu, diğer cihaz açık mı?'); } },12000); });
+  peer.on('error',err=>{ toast(err.type==='peer-unavailable'?'Bu kodla oda yok':'Bağlantı hatası'); roomUI(null); }); };
+$('rLeave').onclick=()=>{ try{ conn&&conn.close(); }catch(e){} try{ peer&&peer.destroy(); }catch(e){} conn=null; peer=null; isHost=false; roomUI(null); };
+$('tRoom').onclick=e=>{ e.stopPropagation(); openOv('room'); };
+// mesajlar ve emojiler
+function bubble(who,text){ const b=document.createElement('div'); b.innerHTML=`<b>${esc(who)}</b>${esc(text)}`; $('bubbles').appendChild(b); setTimeout(()=>{ b.style.opacity=0; setTimeout(()=>b.remove(),600); },6500); while($('bubbles').children.length>4) $('bubbles').firstChild.remove(); }
+function floatEmo(e){ for(let i=0;i<5;i++){ const f=document.createElement('i'); f.textContent=e; f.style.left=(20+Math.random()*60)+'%'; f.style.animationDelay=(i*.12)+'s'; $('floaters').appendChild(f); setTimeout(()=>f.remove(),4000); } }
+function sendChat(inp){ const t=inp.value.trim(); if(!t) return; inp.value=''; bubble(ME||'Ben',t); send({t:'chat',who:ME||'Biri',text:t}); }
+$('rSend').onclick=()=>sendChat($('rMsg')); $('rMsg').onkeydown=e=>{ if(e.key==='Enter') sendChat($('rMsg')); };
+$('chatSend').onclick=()=>{ sendChat($('chatTxt')); $('chatIn').classList.remove('on'); };
+$('chatTxt').onkeydown=e=>{ e.stopPropagation(); if(e.key==='Enter'){ sendChat($('chatTxt')); $('chatIn').classList.remove('on'); } if(e.key==='Escape') $('chatIn').classList.remove('on'); };
+$('tChat').onclick=e=>{ e.stopPropagation(); $('chatIn').classList.toggle('on'); if($('chatIn').classList.contains('on')) setTimeout(()=>$('chatTxt').focus(),50); };
+$('emoBar').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; floatEmo(b.textContent); send({t:'emo',e:b.textContent}); });
+// senkron: bölüm değişimi, oynat/duraklat, zaman
+const _play=playCurrent; playCurrent=function(){ _play(); const c=cur(); if(c && !remoteApply) send({t:'item',it:{k:c.k,n:c.n,id:c.id},time:(window.RESUME&&RESUME.id===c.id)?RESUME.t:0}); };
+function ytState(){ try{ return ready?player.getPlayerState():-1; }catch(e){ return -1; } }
+let lastSt=-1, quietUntil=0;
+setInterval(()=>{ if(!(conn&&conn.open)) return; const c=cur(); if(!c||isExt(c.id)||isLocal(c.id)) return; const st=ytState();
+  if(Date.now()>quietUntil && (st===1||st===2) && st!==lastSt && lastSt!==-1) send({t:'pp',play:st===1,time:curTime(),id:c.id});
+  if(st===1||st===2) lastSt=st;
+  if(isHost && st===1) send({t:'time',id:c.id,time:curTime()}); },1500);
+function onRemote(m){ if(!m||!m.t) return;
+  if(m.t==='hi'){ toast(`${m.who} bağlandı ♥`); bubble(m.who,'kanala katıldı ♥'); }
+  else if(m.t==='chat'){ bubble(m.who,m.text); }
+  else if(m.t==='emo'){ floatEmo(m.e); }
+  else if(m.t==='item'){ const c=cur(); if(c && c.id===m.it.id) return; remoteApply=true;
+    try{ $('start').style.display='none'; started=true; history.push(m.it); pos=history.length-1; if(m.time>5) window.RESUME={id:m.it.id,t:m.time}; transition(true,'BİRLİKTE',true); } finally { setTimeout(()=>{ remoteApply=false; },50); } quietUntil=Date.now()+3000; lastSt=-1; }
+  else if(m.t==='pp'){ const c=cur(); if(!c||c.id!==m.id||!ready) return; quietUntil=Date.now()+2500; try{ if(Math.abs(curTime()-m.time)>2) player.seekTo(m.time,true); m.play?player.playVideo():player.pauseVideo(); }catch(e){} lastSt=m.play?1:2; }
+  else if(m.t==='time'){ const c=cur(); if(!c||c.id!==m.id||!ready||isHost) return; const d=curTime()-m.time; if(Math.abs(d)>3){ quietUntil=Date.now()+2500; try{ player.seekTo(m.time+0.5,true); }catch(e){} } } }
+
+/* ---------- oyunlar menüsü ---------- */
+$('gamesBtn').onclick=()=>{ const r1=+LS.get('diva-oyun-rekor',0), r2=+LS.get('diva-kalp-rekor',0), r3=LS.get('diva-hafiza-rekor',null);
+  if(r1) $('rk1').textContent='Rekor: '+r1+' kalp'; if(r2) $('rk2').textContent='Rekor: '+r2+' puan'; if(r3) $('rk3').textContent='Rekor: '+r3+' hamle'; openOv('gamesOv'); };
 
 function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'),2200); }
 </script>

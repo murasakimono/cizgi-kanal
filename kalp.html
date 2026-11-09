@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0912">
+<title>Diva TV · Kalp Yakala</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Bungee&family=VT323&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html,body{height:100%;background:#0b0912;overflow:hidden;touch-action:none;font-family:'Space Grotesk',system-ui,sans-serif;color:#fff}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;z-index:5;top:calc(10px + env(safe-area-inset-top));left:calc(14px + env(safe-area-inset-left));right:calc(14px + env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:center;pointer-events:none;font-family:'VT323',monospace;font-size:26px;text-shadow:0 2px 0 #0008}
+.hud a{pointer-events:auto;text-decoration:none;display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#0007;font-size:18px}
+.scr{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;text-align:center;background:radial-gradient(900px 600px at 50% 10%,#3a2350ee,#0b0912f5 75%)}
+.scr.hide{display:none}
+.scr h1{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:clamp(44px,9vw,86px);line-height:.9;color:#fff4ea}
+.scr p{max-width:480px;line-height:1.5;color:#e9e2f5;font-size:15px}
+.scr img{height:min(30vh,200px);filter:drop-shadow(0 10px 20px #0008)}
+.leg{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:14px;color:#d9c7ff}
+.go{appearance:none;border:0;cursor:pointer;font-family:'Bungee',sans-serif;font-size:18px;letter-spacing:1px;padding:15px 30px;border-radius:18px;color:#fff;background:linear-gradient(#ff5d78,#d22f50);box-shadow:0 6px 0 #7a1328}
+.go:active{transform:translateY(4px);box-shadow:0 2px 0 #7a1328}
+.lnk{color:#ffcf5a;font-size:15px}
+@media (max-height:480px){ .scr{gap:8px} .scr img{height:26vh} .scr h1{font-size:44px} .scr p{font-size:13px} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><div id="hud"></div><a href="./" aria-label="Kanala dön">📺</a></div>
+<div class="scr" id="intro">
+  <img src="img/i_wave.png" alt="">
+  <h1>Kalp Yakala</h1>
+  <p>İlayda bulutun üstünden kalp atıyor, Metehan aşağıda yakalıyor. 60 saniye, 3 can. Sınav kâğıtlarına ve çalar saatlere dikkat.</p>
+  <div class="leg"><span>♥ +1</span><span>💛 +5</span><span>🍿 +2</span><span>📄 / ⏰ can gider</span></div>
+  <button class="go" id="start">BAŞLA ▶</button>
+  <div class="leg" id="rekor"></div>
+  <div class="leg">Parmağını ekranda kaydır ya da ← → tuşlarını kullan</div>
+</div>
+<div class="scr hide" id="end"><img src="img/sarilma.png" alt=""><h1 id="endT">Süre bitti!</h1><p id="endP"></p><button class="go" id="again">TEKRAR</button><a class="lnk" href="./">Kanala dön</a></div>
+<script>
+const cv=document.getElementById('c'), ctx=cv.getContext('2d'); let W=0,H=0,DPR=1,S=1;
+function resize(){ DPR=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); S=Math.max(.7,Math.min(1.3,H/600)); }
+addEventListener('resize',resize); resize();
+const IMG={}; ['m_stand','m_walk1','m_walk2','i_wave','i_idle'].forEach(n=>{ const i=new Image(); i.src='img/'+n+'.png'; IMG[n]=i; });
+const AX={m_stand:.551,m_walk1:.538,m_walk2:.506,i_wave:.462,i_idle:.497};
+function spr(n,x,y,h,flip){ const im=IMG[n]; if(!im.complete||!im.naturalWidth) return; const w=im.naturalWidth*h/im.naturalHeight; ctx.save(); ctx.translate(x,y); if(flip) ctx.scale(-1,1); ctx.drawImage(im,-w*AX[n],-h,w,h); ctx.restore(); }
+let AC=null; function beep(f1,f2,d,type='triangle',v=.07){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); const o=AC.createOscillator(),g=AC.createGain(); o.type=type; o.frequency.setValueAtTime(f1,AC.currentTime); o.frequency.exponentialRampToValueAtTime(f2,AC.currentTime+d); g.gain.setValueAtTime(v,AC.currentTime); g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d); o.connect(g).connect(AC.destination); o.start(); o.stop(AC.currentTime+d); }catch(e){} }
+let REK=0; try{ REK=+localStorage.getItem('diva-kalp-rekor')||0; }catch(e){}
+if(REK) document.getElementById('rekor').textContent='Rekorun: '+REK+' puan';
+
+let run=false, t=0, timeLeft=60, lives=3, score=0, combo=0, items=[], fx=[], spawnT=0;
+const P={x:0,tx:0,face:1,walk:0,hit:0};
+const KINDS=[ {k:'heart',w:52,pts:1}, {k:'gold',w:7,pts:5}, {k:'pop',w:14,pts:2}, {k:'paper',w:15,bad:1}, {k:'alarm',w:12,bad:1} ];
+function pick(){ const tot=KINDS.reduce((a,k)=>a+k.w,0); let r=Math.random()*tot; for(const k of KINDS){ r-=k.w; if(r<=0) return k; } return KINDS[0]; }
+function reset(){ t=0; timeLeft=60; lives=3; score=0; combo=0; items=[]; fx=[]; spawnT=0; P.x=P.tx=W/2; }
+// kontrol
+let keyL=false,keyR=false;
+addEventListener('keydown',e=>{ if(e.key==='ArrowLeft'||e.key==='a') keyL=true; if(e.key==='ArrowRight'||e.key==='d') keyR=true; });
+addEventListener('keyup',e=>{ if(e.key==='ArrowLeft'||e.key==='a') keyL=false; if(e.key==='ArrowRight'||e.key==='d') keyR=false; });
+cv.addEventListener('pointerdown',e=>{ P.tx=e.clientX; }); cv.addEventListener('pointermove',e=>{ if(e.buttons||e.pointerType==='touch') P.tx=e.clientX; });
+
+function heart(x,y,s,col){ ctx.fillStyle=col; ctx.beginPath(); ctx.moveTo(x,y+s*.3); ctx.bezierCurveTo(x,y,x-s*.5,y,x-s*.5,y+s*.3); ctx.bezierCurveTo(x-s*.5,y+s*.6,x,y+s*.8,x,y+s); ctx.bezierCurveTo(x,y+s*.8,x+s*.5,y+s*.6,x+s*.5,y+s*.3); ctx.bezierCurveTo(x+s*.5,y,x,y,x,y+s*.3); ctx.fill(); }
+function drawItem(it){ const s=34*S; ctx.save(); ctx.translate(it.x,it.y); ctx.rotate(Math.sin(it.ph)*.25);
+  if(it.k==='heart'){ ctx.shadowColor='#ff4d6d'; ctx.shadowBlur=12; heart(0,-s/2,s,'#ff4d6d'); }
+  else if(it.k==='gold'){ ctx.shadowColor='#ffcf5a'; ctx.shadowBlur=18; heart(0,-s/2,s*1.1,'#ffcf5a'); }
+  else if(it.k==='pop'){ ctx.fillStyle='#e8344e'; ctx.beginPath(); ctx.moveTo(-14*S,-4*S); ctx.lineTo(14*S,-4*S); ctx.lineTo(10*S,18*S); ctx.lineTo(-10*S,18*S); ctx.fill(); ctx.fillStyle='#fff'; for(let i=0;i<3;i++) ctx.fillRect((-11+i*8)*S,-4*S,4*S,22*S); ctx.fillStyle='#fff6d6'; [[-8,-8],[0,-12],[8,-8],[-3,-6],[5,-5]].forEach(([a,b])=>{ ctx.beginPath(); ctx.arc(a*S,b*S,6*S,0,7); ctx.fill(); }); }
+  else if(it.k==='paper'){ ctx.fillStyle='#fff'; ctx.strokeStyle='#333'; ctx.lineWidth=2; ctx.fillRect(-16*S,-20*S,32*S,40*S); ctx.strokeRect(-16*S,-20*S,32*S,40*S); ctx.fillStyle='#d22f50'; ctx.font=`bold ${20*S}px Space Grotesk`; ctx.textAlign='center'; ctx.fillText('F',6*S,-2*S); ctx.fillStyle='#aaa'; for(let i=0;i<3;i++) ctx.fillRect(-11*S,(4+i*6)*S,22*S,2*S); }
+  else { ctx.translate(Math.sin(t*40)*1.5,0); ctx.fillStyle='#ffcf5a'; ctx.beginPath(); ctx.arc(-13*S,-15*S,7*S,0,7); ctx.arc(13*S,-15*S,7*S,0,7); ctx.fill(); ctx.fillStyle='#ff5d78'; ctx.beginPath(); ctx.arc(0,0,18*S,0,7); ctx.fill(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(0,0,13*S,0,7); ctx.fill(); ctx.strokeStyle='#222'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-9*S); ctx.moveTo(0,0); ctx.lineTo(6*S,0); ctx.stroke(); }
+  ctx.restore(); }
+function bg(){ const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#ff9fb5'); g.addColorStop(.55,'#ffd6c0'); g.addColorStop(1,'#ffe9d6'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#ffffffaa'; for(let i=0;i<5;i++){ const x=((i*W/4.2+t*12*(i%2?1:-1))%(W+200)+W+200)%(W+200)-100, y=40+i*28; ctx.beginPath(); ctx.arc(x,y,24,0,7); ctx.arc(x+28,y-10,30,0,7); ctx.arc(x+60,y,24,0,7); ctx.fill(); }
+  ctx.fillStyle='#c98a9a55'; for(let i=0;i<12;i++){ const bw=W/10, h=60+((i*53)%90); ctx.fillRect(i*bw-10,H-70-h,bw-12,h+70); }
+  ctx.fillStyle='#7a5a6a'; ctx.fillRect(0,H-46*S,W,46*S); ctx.fillStyle='#e8a2a2'; ctx.fillRect(0,H-50*S,W,8*S); }
+function cloudIlayda(){ const cx=W/2+Math.sin(t*.7)*W*.3, cy=110*S; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(cx,cy+10*S,70*S,24*S,0,0,7); ctx.ellipse(cx-40*S,cy+4*S,34*S,22*S,0,0,7); ctx.ellipse(cx+42*S,cy+4*S,36*S,22*S,0,0,7); ctx.fill();
+  spr(Math.sin(t*3)>0?'i_wave':'i_idle',cx,cy+6*S,92*S,false); return cx; }
+let ilX=0;
+function update(dt){ t+=dt; timeLeft-=dt; if(timeLeft<=0){ return finish(); }
+  const sp=520*S; if(keyL) P.tx=P.x-sp*.2; if(keyR) P.tx=P.x+sp*.2; P.tx=Math.max(30,Math.min(W-30,P.tx));
+  const dx=P.tx-P.x, mv=Math.sign(dx)*Math.min(Math.abs(dx),sp*dt); P.x+=mv; if(Math.abs(mv)>.5){ P.face=Math.sign(mv); P.walk+=Math.abs(mv)*.03; }
+  P.hit-=dt;
+  const diff=1+(60-timeLeft)/35; spawnT-=dt; if(spawnT<=0){ spawnT=(.62/diff)*(0.7+Math.random()*.6); const k=pick(); items.push({...k,x:ilX+(Math.random()-.5)*60,y:140*S,vx:(Math.random()-.5)*160*S,vy:(80+Math.random()*60)*S,ph:Math.random()*6}); }
+  const groundY=H-48*S, catchY=groundY-70*S;
+  for(const it of items){ it.vy+=260*S*dt*diff*.6; it.x+=it.vx*dt; it.y+=it.vy*dt; it.ph+=dt*3; if(it.x<20||it.x>W-20) it.vx*=-1;
+    if(!it.done && it.y>catchY && it.y<groundY && Math.abs(it.x-P.x)<44*S){ it.done=true;
+      if(it.bad){ if(P.hit<=0){ lives--; P.hit=1.2; combo=0; beep(220,70,.35,'sawtooth'); burst(it.x,it.y,'#555',10); if(lives<=0) return finish(); } }
+      else { combo++; const m=combo>=10?3:combo>=5?2:1; score+=it.pts*m; beep(880,1320,.08); burst(it.x,it.y,it.k==='gold'?'#ffcf5a':'#ff4d6d',8); fx.push({x:it.x,y:it.y-20,txt:'+'+(it.pts*m),life:.9}); } }
+    if(it.y>groundY+30) it.done=true; }
+  items=items.filter(i=>!i.done);
+  for(const f of fx){ f.life-=dt; if(f.vx!==undefined){ f.x+=f.vx*dt; f.y+=f.vy*dt; f.vy+=400*dt; } else f.y-=40*dt; } fx=fx.filter(f=>f.life>0); }
+function burst(x,y,col,n){ for(let i=0;i<n;i++){ const a=Math.random()*6.28,s=80+Math.random()*120; fx.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-80,col,life:.5,r:3+Math.random()*3}); } }
+function render(){ bg(); ilX=cloudIlayda(); for(const it of items) drawItem(it);
+  const groundY=H-48*S; ctx.fillStyle='#0003'; ctx.beginPath(); ctx.ellipse(P.x,groundY,26*S,6*S,0,0,7); ctx.fill();
+  if(!(P.hit>0 && Math.floor(t*14)%2)){ const moving=Math.abs(P.tx-P.x)>3; const n=moving?['m_walk1','m_stand','m_walk2','m_stand'][Math.floor(P.walk)%4]:'m_stand'; spr(n,P.x,groundY,140*S,P.face<0); }
+  for(const f of fx){ ctx.globalAlpha=Math.min(1,f.life*2); if(f.txt){ ctx.fillStyle='#d22f50'; ctx.font=`bold ${22*S}px Space Grotesk`; ctx.textAlign='center'; ctx.fillText(f.txt,f.x,f.y); } else { ctx.fillStyle=f.col; ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,7); ctx.fill(); } } ctx.globalAlpha=1;
+  document.getElementById('hud').textContent=`♥ ${score}   ⏱ ${Math.max(0,Math.ceil(timeLeft))}   ${'❤️'.repeat(Math.max(0,lives))}${combo>=5?'   x'+(combo>=10?3:2):''}`; }
+let last=0; function loop(ts){ const dt=Math.min(.033,(ts-last)/1000||0); last=ts; if(run) update(dt); render(); requestAnimationFrame(loop); } requestAnimationFrame(loop);
+function finish(){ run=false; const yeni=score>REK; if(yeni){ REK=score; try{ localStorage.setItem('diva-kalp-rekor',REK); }catch(e){} }
+  document.getElementById('endT').textContent=lives<=0?'Canlar bitti!':'Süre bitti!';
+  document.getElementById('endP').textContent=`${score} puan. `+(yeni?'Yeni rekor! ♥':`Rekor: ${REK}.`)+(score>=60?' İlayda çok etkilendi.':score>=30?' Fena değil, kalpler yerini buldu.':' Isınma turuydu, değil mi?');
+  [523,659,784].forEach((f,i)=>setTimeout(()=>beep(f,f,.15),i*120)); document.getElementById('end').classList.remove('hide'); }
+function begin(){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); AC.resume(); }catch(e){} reset(); document.getElementById('intro').classList.add('hide'); document.getElementById('end').classList.add('hide'); run=true; }
+document.getElementById('start').onclick=begin; document.getElementById('again').onclick=begin;
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) last=performance.now(); });
+P.x=P.tx=W/2;
+</script>
+</body>
+</html>
