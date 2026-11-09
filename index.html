@@ -529,7 +529,7 @@ async function afterUnlock(first){ OZEL=await decryptOzel(window.__pin||''); if(
 let FAVS=[]; try{ FAVS=JSON.parse(localStorage.getItem('cizgi-kanal-fav')||'[]'); }catch(e){}
 let favOnly=false; try{ favOnly=localStorage.getItem('cizgi-kanal-favonly')==='1'; }catch(e){}
 const saveFav=()=>{ try{ localStorage.setItem('cizgi-kanal-fav',JSON.stringify(FAVS)); }catch(e){} };
-function curTitle(c){ if(typeof c.id==='string'&&!isExt(c.id)){ try{ const t=player.getVideoData().title; if(t) return t.split('|').map(s=>s.trim()).filter(s=>s&&!/cartoon network|tam bölüm|@/i.test(s)).slice(0,2).join(' · ')||t; }catch(e){} } return c.n+' bölümü'; }
+function curTitle(c){ if(typeof c.id==='string'&&!isExt(c.id)){ try{ const t=player.getVideoData().title; if(t) return t.split(/\s[|I¦]\s|\|/).map(s=>s.trim()).filter(s=>s&&!/cartoon network|tam bölüm|@/i.test(s)).slice(0,2).join(' · ')||t; }catch(e){} } return c.n+' bölümü'; }
 function updateFavBtn(){ const c=cur(); $('fav').classList.toggle('on', !!(c&&FAVS.some(f=>f.id===c.id))); }
 $('fav').onclick=()=>{ const c=cur(); if(!c) return; const i=FAVS.findIndex(f=>f.id===c.id); if(i>=0){ FAVS.splice(i,1); toast('Favorilerden çıkarıldı'); } else { FAVS.push({k:c.k,n:c.n,id:c.id,t:curTitle(c)}); toast('♥ Favorilere eklendi'); } saveFav(); updateFavBtn(); renderFavs(); };
 function renderFavs(){ const l=$('favList'); if(!l) return; $('favOnly').checked=favOnly;
