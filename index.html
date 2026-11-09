@@ -233,8 +233,8 @@ addEventListener('message',e=>{ if(e.origin!=='https://dzen.ru') return; let m=e
   if(m.event==='timeupdate'){ dzT.t=m.time; dzT.d=m.duration||dzT.d; dzT.last=Date.now(); setPlayIco(true);
     const left=dzT.d-dzT.t; $('lower').classList.toggle('on', dzT.d>60 && left<45 && left>3);
     if(!dzT.done && dzT.d>30 && left<=1.2){ dzT.done=true; next(true); } }
-  if(/end|finish|complete/i.test(m.event) && !dzT.done){ dzT.done=true; next(true); }
-  if(/error/i.test(m.event)) onErr();
+  if(/^(ended|end|finished|videoEnded|complete|completed)$/i.test(m.event) && !dzT.done){ dzT.done=true; next(true); }
+  if(/^(error|playbackError|loadError)$/i.test(m.event)){ dzT.done=true; onErr(); }
 });
 /* altyazı: varsayılan kapalı, CC tuşuyla aç/kapat (tercih hatırlanır) */
 let ccOn=false; try{ ccOn=localStorage.getItem('cizgi-kanal-cc')==='1'; }catch(e){}
