@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0b0912">
 <title>Çizgi Kanal</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Shade&family=VT323&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
@@ -89,11 +89,19 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
 .hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}
 .toast{position:absolute;z-index:40;left:50%;top:calc(20px + env(safe-area-inset-top));transform:translate(-50%,-20px);opacity:0;background:#000d;padding:10px 16px;border-radius:12px;font-size:14px;transition:.25s;pointer-events:none}
 .toast.on{opacity:1;transform:translate(-50%,0)}
+#vid{position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;object-fit:contain}
+#vid.on{display:block}
+#cc.on{background:var(--phos);color:#04140b}
+.arch{margin-top:16px;border-top:1px solid #ffffff1a;padding-top:14px;display:flex;flex-direction:column;gap:8px}
+.arch h3{font-family:'Bungee',sans-serif;font-size:13px;letter-spacing:2px}
+.arch input{appearance:none;border:1px solid #ffffff22;background:#0d0b13;color:var(--ink);border-radius:12px;padding:12px;font:inherit;font-size:14px}
+.key .loc{display:inline-block;margin-left:4px;font-size:10px;color:#04140b;background:var(--phos);border-radius:6px;padding:0 5px;font-weight:700}
+#panel{overflow:auto}
 </style>
 </head>
 <body>
 <div id="tv">
-  <div id="player-wrap"><div id="player"></div></div>
+  <div id="player-wrap"><div id="player"></div><video id="vid" playsinline preload="auto"></video></div>
   <div id="tap"></div>
   <div class="bug"><i></i>ÇİZGİ KANAL</div>
   <div id="lower"><div class="tag">SIRADA</div><div class="txt" id="lowerTxt"></div></div>
@@ -104,6 +112,7 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
     <div class="np"><div class="a">ŞİMDİ</div><div class="b" id="npShow">—</div><div class="c" id="npNext"></div></div>
     <button class="cb zap" id="zap" aria-label="Sonraki bölüm">ZAP <svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8V4ZM19 5v14"/></svg></button>
     <button class="cb" id="list" title="Diziler" aria-label="Dizileri seç"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+    <button class="cb" id="cc" title="Altyazı" aria-label="Altyazıyı aç veya kapat"><span style="font-family:Bungee;font-size:14px">CC</span></button>
     <button class="cb" id="fs" title="Tam ekran" aria-label="Tam ekran"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
   </div>
 
@@ -123,6 +132,13 @@ html,body{height:100%;background:#000;color:var(--ink);font-family:'Space Grotes
     <div class="keys" id="keys"></div>
     <div class="prow"><button class="pbtn" id="all">HEPSİ</button><button class="pbtn" id="none">HİÇBİRİ</button></div>
     <p class="hint" id="hint"></p>
+    <section class="arch">
+      <h3>KENDİ ARŞİVİM (PC)</h3>
+      <p class="hint" id="jfState">Bağlı değil. PC'deki Jellyfin sunucusunun adresini ve API anahtarını gir; klasöre eklediğin her bölüm kanala kendiliğinden gelir.</p>
+      <input id="jfUrl" placeholder="https://bilgisayar.tailxxxx.ts.net" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <input id="jfKey" placeholder="API anahtarı" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="prow"><button class="pbtn" id="jfSave">BAĞLAN</button><button class="pbtn" id="jfShare">DİĞER CİHAZA AKTAR</button></div>
+    </section>
   </aside>
   <div class="toast" id="toast"></div>
 </div>
@@ -147,6 +163,10 @@ const SHOWS = [
  {k:'pnf', n:'Fineas & Förb', ids:`LYtqvCc3-OM`},
  {k:'kick', n:'Kick Buttowski', ids:`4yIqTz7fE4M pQ0-2rogKFk haibbTmDRME TrGca7zjip4 DbG2iIIoqNU 13wHeIHu9Qk xH4G_ICKe0A irZZJ_BaYAk oB03XTaftm4 oI-Nu519i3M QpniEENwn6M Fxl4eh39_Qs`},
  {k:'boyster', n:'Boyster', ids:''},
+ {k:'winx', n:'Winx Club', ids:`MkU2X3eT-sI 7Kha2ydToGU zsgyywtMrzs 6EjugtvwwO4 uxeqgBGvQi4 y6Ra2qpPbtQ Tx3pgGGai5Q XBKIRRySFfM aun7gr11xbU ZqnxspL62Mw YaYdqV8FN2M nCQm4zvZCTo HXhLFLoSHNM ji3fQRX_EX0 l3hwMhTF78Q xMMsex7ecNA UG41PPE8Kpc 74oOcQXR39I 3GoMWqnPifk XDZbxHrbEwM OmwBEy5mWwg dWEyB_1YLw8 ZodYbLOLeXY UjcEWOF-0sk SrJfmDvfAxc lL0Xbmq-oxY z4xx7udwH6w arCd4TTqrfg lqHdVgn6L-4 858_ZUvSOuo 5aZ9e3K6zjU cYa8XP5bwOY zxtKU3ciibY x2w4p3ip4iE OszbWYM7jt4 JZSAYTzjQBA dVqwhyJYL00 AIet9IL3RW8 wWoSN8iPvpY F79fZnsK3eY 5sfnhZeGyEQ bKDXYbe8-lg HSHgxTpOILA glyCv8i-Kwg hNZRaA3uJNU rPX36n0mNhI 6tMYhI4r1Zc Z_dNMBc0bbg E2UvvyJa82w o9UY0KSoN7o hnLIQEx5qqo iLAmg2jU8Pg V7ADjaYNWKg VGMwJmtxvG0 vU1w6feyjNI W5Km4l9i9hU pYowhBi-9Bo 4LkqFT3kg80 WTUvi1N3tBo YCSTy6hDA_g nijXvEJlk4k p9ozUCpDEtc BbZLpn-thPI YAeznJ5pYc0 Y4TmJnKZ6-k PdxQkdioY9Y 4DxwsRBT90M qYqp9zuQWpE uniA9ICCPbs krV43J_YhAY hPEcNNLckOo oITtVQwi818 VrtGVzuhpN0 7WTKpQNo67k I6hEMmJZPOc 6Y-07YxBIik dMmSQxhFsXQ cg_Ql4m8icw BHcEh-jk87A DZJLTGL8Hgc wnA7PYtuTX8 LSERbDeTsfc NAonlv11TVs z6d27W13HPY epr6WQ8F13c -PhYSfbqpgw fu-P2T-FnOk T2hMSZLYMdc 8lweRQM3-Yk zRoNBD5qBFk 64teX3dViWo PCSNcpOIY-I XbWqTKFABbw G1y_RZvW_KI BnwRDVwP7pg lKCH5oLWn_I l9iQj5C39Bg R8YJlOUuyFk w8KqKiSmTEQ NQmbOckZSbQ Nd0P4H6PduU EcIHMmrd1IY ac1XD52R48A qma9jEcAnV8 YN6AVZS4TNs yVDEhqKHfd4 1r1AheAHtNE xXIXmDlQs9o 4PaB1crL2As Niba9h8z4pQ BOINicERb4A yHHaj__64eU dRNTyZGFH4w 7W6IzPifLUE vtAUHIUSl1c lPPo8gpc0Ng X4dD99we51U j4P9TcuxazI 7dk4DczwXnY 2ugew5tNEo4 nUVRp3CGUo0 y2WgElvhEi8 2ykuY_Nv0zA YCipeyGie8U 8VZeLLusNy8 Qzc3V0n-W-U jHxZZ9cfg6g FxqOFkEEFgM C26Uqi7QSmU HD24ee6p06w J9-RQvYfgnc M4kGwpBVejg vrFN9bzbbog x_FUsuZPdnY Eb7Nu8d7fmk SYlbR7Ng_IQ 9WzdNjS0pUs hZXPiJTla4k fPfbrNnlQBA qDc0S6fBBc0 z4fnAcKl3TY _vV4SsTzeXY tONmmVi2HtE CcNIbj6Wtbs 4U7ap0tovI8 A4rDNBYaLmg MevsV6MJfB8 pIVyHPv48wk RmK8tLZ-qRM pT_Xskp7C1I 7CGxiG7IqOo TdEC6Fs8r_I uQa3geVPa68 z2sWBpgDMp4 adFFh5ZhyYs 3T9jE6FCpsM 67y6I_m7isk pBRUAURAapA qY3WYppVlIM KemXbHf5m5U ZsrqcohpSjk TQ_04dFljMY K3YnqwluPak iT40s3ZyPGw gYwMteCOxg8 2-fzHcYmeuM QMd-sAtxfcM 4sVNZpCE600 ifZBST8yii0 x2KFFinSq7Y Zt_5JuAw4Zg WZgO_vKLeFs oXxaF1PZHaw BP-PmDFnyeU cNEh3E5oUAs OiS9oeC9Mss rrvQ0bpeOo8 Mf4gbRVECZc m7p7vzpU47w wqYpeH84qW8 zQdHCnbv6tI XDB6c1CN3gc uxJdCtrl1_E ufs1DkJwpXQ AyvpA8z6FRM D2KT-VWWEJ0 uGTCBWAxFDg gDQxxy_fSRg vgJwuUG6loE aKe6ERkfxlc SoxPigU2KCs 5WbTiRwu3vo nddv_hvZWCE vzkohRjUC3s usSkfxDex_4 pVn9j_lbvCU p_g0N2LvHuQ v2M3oT71I0c FPjWsw60k8o fkJdQTrepqM udlyXGmqe08 hs7S0MXpCQU zNC_EdGdm98 0xFmK9sQd4I KHQQa62z9-w ErV7MON04r0 YdiYDZej988 U7e-KCIPEZk e1HGCj1r_mQ fHQDzpYmcF4 6rUDZZTJ568 u_4WFQvRJHY 0LDyCpP7AdQ 3EndROj6Nps EZjJTgba9v8 VApzhzsi1zg Pxh_zEdTwlM JaD2JeWTLeA s2e22m7M60M lKoQ9CYbw68 mJSo1md01xk fGky5uYTZMg orCYp-STEbY 655TAjq4QOo jE8bGrQyfNc vh1QNsO7i1g kaD89iy1VwM KKE53HDSnpc 5eTxSOWawck xlcEZKPwaQw iKkAIB5DPII xv0yfr0TFm8 rwXla8IAQsc L56yN9Ubbns gcBKRG11opA l5Lr4G1Uvok VvYvm5MOL90 K05Lh0xLFX8 3pCJFuYINUc SEyoPKa9-ao BtOTtuGLnKY mKOpmtkupHs uhiZkjjpJbk iy7obu42ITk yAdhPcalHvE 26W04v2p7oA k_ctM9_PcJ4 RNP5bls2FHk vbGA0luPjlA 3MwQiDyckH0 SKDm-Sqp9Uw ZAoCeLsNouQ mWMG-IhLMzY pKSe9NbpUy0 3XavEN6UO_I o1AoHIroQeY dNxn_1KJUgo CbCOib7OIf4 812X54fohlw`},
+ {k:'penguen', n:'Madagaskar Penguenleri', ids:''},
+ {k:'sbob', n:'Sünger Bob', ids:''},
+ {k:'danny', n:'Danny Phantom', ids:''},
 ].map(s=>({...s, list:s.ids.split(/\s+/).filter(Boolean)}));
 
 const $=id=>document.getElementById(id);
@@ -159,6 +179,7 @@ const save=()=>{try{localStorage.setItem('cizgi-kanal-on',JSON.stringify([...on]
 const decks={}; const weight={};
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
 function draw(k){ const s=SHOWS.find(x=>x.k===k); if(!decks[k]||!decks[k].length) decks[k]=shuffle([...s.list]); return decks[k].pop(); }
+const isLocal=it=>typeof it==='object';
 let history=[], pos=-1, queue=[];
 function pickShow(){
   const act=SHOWS.filter(s=>on.has(s.k)&&s.list.length); if(!act.length) return null;
@@ -175,11 +196,20 @@ let player=null, ready=false, started=false, failStreak=0;
 const tag=document.createElement('script'); tag.src='https://www.youtube.com/iframe_api'; document.head.appendChild(tag);
 window.onYouTubeIframeAPIReady=()=>{
   player=new YT.Player('player',{width:'100%',height:'100%',
-    playerVars:{autoplay:1,playsinline:1,rel:0,modestbranding:1,iv_load_policy:3,fs:0,disablekb:1,cc_load_policy:0,hl:'tr'},
-    events:{onReady:()=>{ready=true; if(started) playCurrent();}, onStateChange:onState, onError:onErr}});
+    playerVars:{autoplay:1,playsinline:1,rel:0,modestbranding:1,iv_load_policy:3,fs:0,disablekb:1,cc_load_policy:0,cc_lang_pref:'tr',hl:'tr'},
+    events:{onReady:()=>{ready=true; applyCC(); if(started) playCurrent();}, onStateChange:onState, onError:onErr}});
 };
 function cur(){ return history[pos]; }
-function playCurrent(){ const c=cur(); if(!c||!ready) return; player.loadVideoById(c.id); updateNP(); }
+function playCurrent(){ const c=cur(); if(!c) return; updateNP();
+  const v=$('vid');
+  if(isLocal(c.id)){ try{ if(ready) player.stopVideo(); }catch(e){}
+    v.classList.add('on'); v.src=jfStream(c.id.jf); const p=v.play(); if(p&&p.catch) p.catch(()=>{ showUI(); toast('Başlamadıysa ▶ tuşuna bas'); });
+    return; }
+  v.pause(); v.removeAttribute('src'); v.load(); v.classList.remove('on');
+  if(!ready) return; player.loadVideoById(c.id); }
+/* altyazı: varsayılan kapalı, CC tuşuyla aç/kapat (tercih hatırlanır) */
+let ccOn=false; try{ ccOn=localStorage.getItem('cizgi-kanal-cc')==='1'; }catch(e){}
+function applyCC(){ if(!ready) return; try{ if(ccOn){ player.loadModule('captions'); player.setOption('captions','track',{languageCode:'tr'}); } else { player.unloadModule('captions'); player.unloadModule('cc'); } }catch(e){} $('cc').classList.toggle('on',ccOn); }
 function updateNP(){
   const c=cur(); if(!c) return; fill();
   $('npShow').textContent=c.n; $('npNext').textContent=queue[0]?('Sırada: '+queue[0].n):'';
@@ -191,7 +221,7 @@ function next(withCard=true,immediate=false){
   transition(withCard,null,immediate);
   setTimeout(checkStuck,4000);
 }
-function checkStuck(){ if(!ready) return; try{ const s=player.getPlayerState(); if(s!==1&&s!==3&&s!==2){ showUI(); toast('Başlamadıysa ▶ tuşuna bas'); } }catch(e){} }
+function checkStuck(){ const c=cur(); if(c&&isLocal(c.id)) return; if(!ready) return; try{ const s=player.getPlayerState(); if(s!==1&&s!==3&&s!==2){ showUI(); toast('Başlamadıysa ▶ tuşuna bas'); } }catch(e){} }
 function prev(){ if(pos>0){ pos--; transition(true,'TEKRAR'); } else toast('Bu ilk bölüm'); }
 let tTimer=null;
 function transition(withCard,label,immediate){
@@ -200,14 +230,14 @@ function transition(withCard,label,immediate){
   if(immediate){ playCurrent(); }
   staticOn(); $('cardLbl').textContent=label||'ŞİMDİ'; $('cardShow').textContent=c.n; $('cardNext').textContent=queue[0]?('sonra: '+queue[0].n):'';
   clearTimeout(tTimer);
-  if(ready && !immediate){ try{player.pauseVideo();}catch(e){} }
+  if(!immediate){ try{ if(ready) player.pauseVideo(); }catch(e){} try{ $('vid').pause(); }catch(e){} }
   setTimeout(()=>{ $('card').classList.add('on'); },350);
   if(!immediate) tTimer=setTimeout(()=>{ playCurrent(); },700);
   setTimeout(()=>{ $('card').classList.remove('on'); staticOff(); },2300);
 }
 function onState(e){
   if(e.data===YT.PlayerState.ENDED){ next(true); }
-  if(e.data===YT.PlayerState.PLAYING){ failStreak=0; setPlayIco(true); scheduleLower(); }
+  if(e.data===YT.PlayerState.PLAYING){ failStreak=0; setPlayIco(true); scheduleLower(); applyCC(); setTimeout(applyCC,1200); }
   if(e.data===YT.PlayerState.PAUSED){ setPlayIco(false); }
 }
 function onErr(){ // gömülemeyen ya da silinmiş video: sessizce atla
@@ -217,7 +247,7 @@ function onErr(){ // gömülemeyen ya da silinmiş video: sessizce atla
 }
 /* bölümün sonuna doğru "SIRADA" alt yazısı */
 let lowerIv=null;
-function scheduleLower(){ clearInterval(lowerIv); lowerIv=setInterval(()=>{ if(!ready) return; try{ const d=player.getDuration(), t=player.getCurrentTime(); const show=d>60 && d-t<45 && d-t>3; $('lower').classList.toggle('on',show); }catch(e){} },1000); }
+function scheduleLower(){ clearInterval(lowerIv); lowerIv=setInterval(()=>{ if(!ready) return; try{ const c=cur(), lv=c&&isLocal(c.id), vv=$('vid'); const d=lv?vv.duration:player.getDuration(), t=lv?vv.currentTime:player.getCurrentTime(); const show=d>60 && d-t<45 && d-t>3; $('lower').classList.toggle('on',show); }catch(e){} },1000); }
 function setPlayIco(p){ $('playIco').innerHTML=p?'<path d="M8 5v14M16 5v14"/>':'<path d="M7 4v16l13-8z"/>'; }
 
 /* ---------- karlanma ---------- */
@@ -233,7 +263,8 @@ $('tap').addEventListener('click',()=>{ tv.classList.contains('showui')?tv.class
 $('ui').addEventListener('click',showUI);
 $('zap').onclick=()=>next(true);
 $('prev').onclick=()=>prev();
-$('play').onclick=()=>{ if(!ready) return; const s=player.getPlayerState(); s===1?player.pauseVideo():player.playVideo(); };
+$('play').onclick=()=>{ const c=cur(); if(c&&isLocal(c.id)){ const v=$('vid'); v.paused?v.play().catch(()=>{}):v.pause(); return; } if(!ready) return; const s=player.getPlayerState(); s===1?player.pauseVideo():player.playVideo(); };
+$('cc').onclick=()=>{ const c=cur(); if(c&&isLocal(c.id)){ toast('Arşiv bölümlerinde altyazı yok'); return; } ccOn=!ccOn; try{localStorage.setItem('cizgi-kanal-cc',ccOn?'1':'0');}catch(e){} applyCC(); toast(ccOn?'Altyazı açık':'Altyazı kapalı'); };
 $('list').onclick=()=>openPanel();
 $('pick').onclick=()=>openPanel();
 $('close').onclick=()=>closePanel();
@@ -246,9 +277,9 @@ $('go').onclick=()=>{
 
 function renderKeys(){
   $('keys').innerHTML=SHOWS.map(s=>{ const na=!s.list.length;
-    const meta=na?"YouTube'da Türkçe yok":(s.sub?s.sub+' · ':'')+s.list.length+' video';
+    const loc=s.list.filter(isLocal).length; const meta=na?(s.local===undefined?"YouTube'da yok · DVD'den eklenecek":"Arşivde bölüm yok"):(s.sub?s.sub+' · ':'')+s.list.length+' bölüm'+(loc?' <span class="loc">PC '+loc+'</span>':'');
     return `<button class="key ${na?'na':(on.has(s.k)?'on':'')}" data-k="${s.k}" ${na?'aria-disabled="true"':''}><b>${s.n}</b><small>${meta}</small></button>`; }).join('');
-  $('hint').textContent=on.size+' dizi açık. Değişiklik sıradaki bölümden itibaren geçerli olur.';
+  $('hint').textContent=on.size+' dizi açık. Değişiklik sıradaki bölümden itibaren geçerli olur.'; renderJF();
 }
 $('keys').addEventListener('click',e=>{ const b=e.target.closest('.key'); if(!b||b.classList.contains('na')) return; const k=b.dataset.k; on.has(k)?on.delete(k):on.add(k); save(); renderKeys(); resetQueue(); if(started) updateNP(); });
 $('all').onclick=()=>{ on=new Set(SHOWS.filter(s=>s.list.length).map(s=>s.k)); save(); renderKeys(); resetQueue(); if(started) updateNP(); };
@@ -264,6 +295,54 @@ document.addEventListener('keydown',e=>{ if(!started) return;
   else if(e.key===' '){ e.preventDefault(); $('play').click(); }
   else if(e.key==='f') $('fs').click();
 });
+/* ---------- Kendi Arşivim: PC'deki Jellyfin sunucusu ---------- */
+let JF=null; try{ JF=JSON.parse(localStorage.getItem('cizgi-kanal-jf')||'null'); }catch(e){}
+// diğer cihazdan gelen aktarım linki: ?arsiv=...
+try{ const q=new URLSearchParams(location.search).get('arsiv'); if(q){ JF=JSON.parse(decodeURIComponent(escape(atob(q)))); localStorage.setItem('cizgi-kanal-jf',JSON.stringify(JF)); window.history.replaceState(null,'',location.pathname); } }catch(e){}
+const jfStream=id=>`${JF.url}/Videos/${id}/stream.mp4?static=true&api_key=${encodeURIComponent(JF.key)}`;
+const norm=s=>s.toLocaleLowerCase('tr').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+const ALIAS={spongebob:'sbob',sungerbob:'sbob',sungerbobkarepantolon:'sbob',spongebobsquarepants:'sbob',penguinsofmadagascar:'penguen',madagaskarpenguenleri:'penguen',thepenguinsofmadagascar:'penguen',dannyphantom:'danny',winxclub:'winx',winx:'winx',theamazingworldofgumball:'gumball',gumballinmuhtesemdunyasi:'gumball',regularshow:'surekli',surekidizi:'surekli',teentitansgo:'ttg',ben10:'ben10',thepowerpuffgirls:'ppg',powerpuffgirls:'ppg',webarebears:'bears',kafadarayilar:'bears',unclegrandpa:'grandpa',dayidede:'grandpa',campLazlo:'lazlo',camplazlo:'lazlo',kamplazlo:'lazlo',totaldramaallstars:'tdas',totaldramaisland:'tdas',dramaadasi:'tdas',americandragonjakelong:'dragon',gencejder:'dragon',bigcitygreens:'greens',greenlerinbuyuksehirmacerasi:'greens',theemperorsnewschool:'kuzco',saskinimparatorunokulu:'kuzco',phineasandferb:'pnf',fineasveforb:'pnf',kickbuttowski:'kick',kickbuttowskisuburbandaredevil:'kick',johnnytest:'jtest',johnnybravo:'bravo',clarence:'clarence'};
+async function jfGet(path){ const r=await fetch(`${JF.url}${path}${path.includes('?')?'&':'?'}api_key=${encodeURIComponent(JF.key)}`); if(!r.ok) throw new Error(r.status); return r.json(); }
+async function loadJF(silent){
+  if(!JF||!JF.url||!JF.key){ renderJF(); return; }
+  try{
+    const series=(await jfGet('/Items?IncludeItemTypes=Series&Recursive=true&Fields=Path')).Items||[];
+    const eps=(await jfGet('/Items?IncludeItemTypes=Episode,Movie,Video&Recursive=true&Fields=SeriesId,SeriesName&Limit=20000')).Items||[];
+    // önce eski arşiv öğelerini temizle
+    SHOWS.forEach(s=>{ s.list=s.list.filter(x=>!isLocal(x)); });
+    for(let i=SHOWS.length-1;i>=0;i--) if(SHOWS[i].jf) SHOWS.splice(i,1);
+    let n=0;
+    for(const sr of series){
+      const key=ALIAS[norm(sr.Name)] || (SHOWS.find(s=>norm(s.n)===norm(sr.Name))||{}).k;
+      let show=key && SHOWS.find(s=>s.k===key);
+      if(!show){ show={k:'jf_'+sr.Id,n:sr.Name,ids:'',list:[],jf:true}; SHOWS.push(show); on.add(show.k); }
+      show.local=true;
+      eps.filter(e=>e.SeriesId===sr.Id).forEach(e=>{ show.list.push({jf:e.Id}); n++; });
+    }
+    Object.keys(decks).forEach(k=>delete decks[k]);
+    JF.ok=true; JF.count=n; JF.when=Date.now(); try{localStorage.setItem('cizgi-kanal-jf',JSON.stringify(JF));}catch(e){}
+    if(!silent) toast(`Arşiv bağlandı: ${n} bölüm`);
+  }catch(e){ JF.ok=false; if(!silent) toast('Arşive ulaşılamadı. PC açık mı?'); }
+  renderJF(); if($('panel').classList.contains('on')) renderKeys();
+}
+function renderJF(){
+  const st=$('jfState'); if(!st) return;
+  if(JF&&JF.url){ $('jfUrl').value=JF.url; $('jfKey').value=JF.key||''; }
+  st.textContent = !JF||!JF.url ? "Bağlı değil. PC'deki Jellyfin sunucusunun adresini ve API anahtarını gir; klasöre eklediğin her bölüm kanala kendiliğinden gelir."
+    : JF.ok ? `Bağlı · ${JF.count} bölüm. Yeni bölümler her açılışta ve 15 dakikada bir eklenir.` : 'Ayarlı ama şu an ulaşılamıyor (PC kapalı olabilir). Kanal YouTube bölümleriyle devam ediyor.';
+}
+$('jfSave').onclick=()=>{ const url=$('jfUrl').value.trim().replace(/\/+$/,''), key=$('jfKey').value.trim(); if(!url||!key){ toast('Adres ve anahtar gerekli'); return; } JF={url,key}; try{localStorage.setItem('cizgi-kanal-jf',JSON.stringify(JF));}catch(e){} loadJF(false); };
+$('jfShare').onclick=async()=>{ if(!JF||!JF.url){ toast('Önce bağlan'); return; } const link=location.origin+location.pathname+'?arsiv='+btoa(unescape(encodeURIComponent(JSON.stringify({url:JF.url,key:JF.key})))); try{ await navigator.clipboard.writeText(link); toast('Link kopyalandı, diğer cihazda aç'); }catch(e){ prompt('Bu linki diğer cihazda aç:',link); } };
+loadJF(true); setInterval(()=>loadJF(true),15*60*1000);
+
+const vid=$('vid');
+vid.addEventListener('ended',()=>next(true));
+vid.addEventListener('playing',()=>{ setPlayIco(true); scheduleLower(); });
+vid.addEventListener('pause',()=>setPlayIco(false));
+vid.addEventListener('error',()=>{ if(vid.getAttribute('src')) onErr(); });
+
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+
 function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'),2200); }
 </script>
 </body>
